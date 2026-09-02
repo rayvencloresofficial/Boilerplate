@@ -1,0 +1,11 @@
+.env
+node_modules/
+
+# Production Build outputs
+dist/
+dist-ssr/
+
+# IDEs and System files
+.vscode/
+.idea/
+.DS_Store
