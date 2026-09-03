@@ -2,42 +2,44 @@
 description: Database table creation and permission seeding workflow
 ---
 
-# Full-Stack Module Creation Workflow
+# Full-Stack Module Creation Workflow (BFF Architecture)
 
-Follow this step-by-step workflow to introduce a new feature module into the repository. It enforces the project's architectural standards across **Database**, **Backend**, **Frontend**, and **RBAC Access Control**.
+Follow this step-by-step workflow to introduce a new feature module into the repository. It enforces the project's architectural standards across the **Database Single Source of Truth**, the **BFF Backend Layer** (`admin/backend` and/or `client/backend`), and the **Frontend Applications** (`admin/frontend` and/or `client/frontend`).
 
 ---
 
-## Architecture Overview of a Module
+## Architecture Overview of a Module in BFF Monorepo
 
-A complete module spans 4 layers across the monorepo:
+A complete module spans the database and its designated BFF stack:
 
 ```
-database/migrations/      --> DDL Table Schema (PostgreSQL)
-database/seeders/         --> Module Permissions & Role Mappings
-backend/src/
-  ├── types/database.ts   --> Kysely Table Interface
-  ├── repositories/       --> Type-Safe Database Queries
-  ├── services/           --> Domain & Business Logic
-  ├── controllers/        --> Zod Request Validation & Response
-  └── routes/             --> Auth & Permission Guards (requirePermission)
-frontend/src/
-  ├── types/              --> TypeScript Data & Payload Contracts
-  ├── services/           --> API Client Functions (Fetch Wrappers)
-  ├── pages/[module]/     --> Joy UI Views & PermissionGate Actions
-  ├── routes/             --> ProtectedRoute Registration
-  └── components/ui/      --> Sidebar Navigation Links
+database/migrations/              --> DDL Table Schema (PostgreSQL 17+)
+database/seeders/                 --> Module Permissions & Role Mappings
+
+admin/backend/ & client/backend/  --> BFF Tier (Controller -> Service -> Repository)
+  ├── src/types/database.ts       --> Kysely Table Interface
+  ├── src/repositories/           --> Type-Safe Database Queries
+  ├── src/services/               --> BFF Domain & Business Logic
+  ├── src/controllers/            --> Zod Request Validation & Response Formatting
+  └── src/routes/                 --> Auth & Permission Guards (requirePermission)
+
+admin/frontend/ & client/frontend/ --> Frontend Tier (React 19, Joy UI, Vite)
+  ├── src/types/                  --> TypeScript Data & Payload Contracts
+  ├── src/services/               --> BFF API Client Functions (Fetch Wrappers)
+  ├── src/pages/[module]/         --> Joy UI Views & PermissionGate Actions
+  ├── src/routes/                 --> ProtectedRoute Registration
+  └── src/components/ui/          --> Sidebar Navigation Links
 ```
 
 ---
 
 ## Step 1: Database Schema & Permissions (`database/`)
 
-All schema definitions and seed data live **exclusively** in the `database/` package. Never place migration or seed scripts inside `backend/`.
+All schema definitions and seed data live **exclusively** in the `database/` package. Never place migration or seed scripts inside `admin/backend/` or `client/backend/`.
 
 ### 1.1 Schema Migration (`database/migrations/`)
 
-If the module introduces new tables, create a sequential SQL migration file (e.g., `database/migrations/003_create_documents_schema.sql`):
+If the module introduces new tables, create an atomic SQL migration file (e.g., `database/migrations/003_create_documents_schema.sql`):
 
 ```sql
 -- 003_create_documents_schema.sql
@@ -55,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_documents_created_by ON documents(created_by);
 
 ### 1.2 Seed Permissions & Role Mappings (`database/seeders/`)
 
-Create a seeder file (e.g., `database/seeders/003_seed_documents.sql`):
+Create a corresponding seeder file (e.g., `database/seeders/003_seed_documents.sql`):
 
 1. **Insert permissions** with the new `module` name:
 
@@ -72,7 +74,7 @@ Create a seeder file (e.g., `database/seeders/003_seed_documents.sql`):
 2. **Map initial permissions to roles**:
 
    ```sql
-   -- Super Admin: gets all permissions
+   -- Super Admin: gets all module permissions
    INSERT INTO role_permissions (role_id, permission_id)
    SELECT '00000000-0000-0000-0000-000000000001', id FROM permissions
    WHERE module = 'documents'
@@ -99,9 +101,14 @@ Create a seeder file (e.g., `database/seeders/003_seed_documents.sql`):
 
 ### 1.3 Apply Changes
 
-Run migrations and seeders from the project root:
+Execute the database runners from the project root:
 
 ```bash
 npm run db:migrate
 npm run db:seed
+```
+
+Or for a full rebuild:
+```bash
+npm run db:reset
 ```

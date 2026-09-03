@@ -1,14 +1,20 @@
 ---
-description: Backend Implementation
+description: Backend BFF Implementation
 ---
 
-## Step 2: Backend Implementation (`backend/`)
+## Step 2: Backend BFF Implementation (`admin/backend/` and/or `client/backend/`)
 
-Follow the strict **Controller $\rightarrow$ Service $\rightarrow$ Repository** layered architecture.
+Identify the target BFF for your feature:
+- **`admin/backend/`** (Port 3000): For administrative dashboards, system configuration, audit telemetry, and back-office management.
+- **`client/backend/`** (Port 4000): For end-user consumer operations, client profile management, and customer self-service.
+
+Follow the strict **Controller $\rightarrow$ Service $\rightarrow$ Repository** layered architecture inside the target BFF.
+
+---
 
 ### 2.1 Database & Domain Types
 
-1. **Update Kysely schema** in `backend/src/types/database.ts`:
+1. **Update Kysely schema** in `[admin|client]/backend/src/types/database.ts`:
 
    ```ts
    export interface DocumentTable {
@@ -26,12 +32,14 @@ Follow the strict **Controller $\rightarrow$ Service $\rightarrow$ Repository** 
    }
    ```
 
-2. **Create domain interfaces & DTOs** in `backend/src/types/[module].ts`.
+2. **Create domain interfaces & DTOs** in `[admin|client]/backend/src/types/[module].ts`.
 
-### 2.2 Repository Layer (`backend/src/repositories/[module].repository.ts`)
+---
+
+### 2.2 Repository Layer (`src/repositories/[module].repository.ts`)
 
 - Use Kysely typed queries only (`selectFrom`, `insertInto`, `updateTable`, `deleteFrom`).
-- Zero HTTP or transport code here.
+- Keep data access completely isolated from HTTP concerns.
 
 ```ts
 import { db } from "../config/database.js";
@@ -57,10 +65,13 @@ export const createDocument = async (
 };
 ```
 
-### 2.3 Service Layer (`backend/src/services/[module].service.ts`)
+---
 
-- Implement business logic, permission rules, and validations.
-- Wrap multi-step mutations inside Kysely transaction blocks: `db.transaction().execute(async trx => ...)`.
+### 2.3 Service Layer (`src/services/[module].service.ts`)
+
+- Implement pure business logic, permissions logic, and validation.
+- Tailor returned payloads specifically for the target frontend (BFF principle).
+- Wrap multi-step mutations inside atomic Kysely transactions: `db.transaction().execute(async trx => ...)`.
 
 ```ts
 import * as docRepo from "../repositories/document.repository.js";
@@ -79,30 +90,38 @@ export const publishDocument = async (
 };
 ```
 
-### 2.4 Controller Layer (`backend/src/controllers/[module].controller.ts`)
+---
 
-- Validate requests with **Zod**.
-- Return RFC 7807 problem details on errors and delegate unexpected exceptions to `next(err)`.
+### 2.4 Controller Layer (`src/controllers/[module].controller.ts`)
+
+- Validate incoming requests with **Zod**.
+- Format successful responses uniformly using `ApiResponse<T>`.
+- Delegate errors to `next(err)` so centralized error middleware formats RFC 7807 problem details.
 
 ```ts
 import type { Response, NextFunction } from "express";
 import { z } from "zod";
 import type { AuthenticatedRequest } from "../types/auth.js";
+import type { ApiResponse } from "../types/api.js";
 import * as docService from "../services/document.service.js";
 
-const CreateDocSchema = z.object({
-  title: z.string().min(1).max(255),
-  content: z.string().optional(),
+export const createDocSchema = z.object({
+  title: z.string().trim().min(1).max(255),
+  content: z.string().trim().optional(),
 });
 
 export const getDocuments = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
     const docs = await docService.listDocuments();
-    res.status(200).json({ success: true, data: docs });
+    const response: ApiResponse<typeof docs> = {
+      success: true,
+      data: docs,
+    };
+    res.status(200).json(response);
   } catch (err) {
     next(err);
   }
@@ -112,24 +131,31 @@ export const createDocument = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
-    const body = CreateDocSchema.parse(req.body);
+    const body = createDocSchema.parse(req.body);
     const doc = await docService.publishDocument(
       body.title,
       body.content,
       req.user?.id,
     );
-    res.status(201).json({ success: true, data: doc });
+    const response: ApiResponse<typeof doc> = {
+      success: true,
+      data: doc,
+      message: "Document created successfully.",
+    };
+    res.status(201).json(response);
   } catch (err) {
     next(err);
   }
 };
 ```
 
-### 2.5 Route Registration (`backend/src/routes/`)
+---
 
-1. Create `backend/src/routes/[module].routes.ts`:
+### 2.5 Route Registration (`src/routes/`)
+
+1. Create `src/routes/[module].routes.ts`:
 
    ```ts
    import { Router } from "express";
@@ -154,11 +180,10 @@ export const createDocument = async (
    export default router;
    ```
 
-2. Mount in `backend/src/routes/index.ts`:
+2. Mount in `src/routes/index.ts`:
+
    ```ts
    import documentRoutes from "./document.routes.js";
    // ...
    router.use("/documents", documentRoutes);
    ```
-
----
