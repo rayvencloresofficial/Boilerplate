@@ -45,7 +45,7 @@ You are an expert AI Full-Stack Software Engineer and System Architect assisting
 
 ### Database
 
-- **Engine**: PostgreSQL 16+.
+- **Engine**: PostgreSQL 17+.
 - **Execution & Isolation**: Managed strictly within the `database/` package.
 - **Transactional DDL & Seeds**: All migration and seed scripts must run inside atomic transactions (`BEGIN` / `COMMIT` / `ROLLBACK`).
 

@@ -10,6 +10,25 @@ import { sql } from 'kysely';
 
 const router = Router();
 
+// Root API Endpoint
+router.get('/', (_req, res) => {
+  res.status(200).json({
+    name: 'Admin Backend API',
+    version: '1.0.0',
+    status: 'ONLINE',
+    endpoints: {
+      health: '/api/v1/health',
+      auth: '/api/v1/auth',
+      users: '/api/v1/users',
+      roles: '/api/v1/roles',
+      permissions: '/api/v1/permissions',
+      testRbac: '/api/v1/test-rbac',
+      settings: '/api/v1/settings',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Health Check Endpoint
 router.get('/health', async (_req, res) => {
   try {

@@ -63,7 +63,11 @@ export default function Dashboard() {
               </Typography>
             </Stack>
             <Typography variant="body" size="xs" color="secondary">
-              Logged in as <b>{user?.first_name} {user?.last_name}</b> ({user?.email}) &bull; Assigned Role:{" "}
+              Logged in as{" "}
+              <b>
+                {user?.first_name} {user?.last_name}
+              </b>{" "}
+              ({user?.email}) &bull; Assigned Role:{" "}
               <span
                 style={{
                   fontFamily: "var(--font-code, monospace)",
@@ -353,7 +357,7 @@ export default function Dashboard() {
               bold
               sx={{ mt: 1, fontFamily: "var(--font-code, monospace)" }}
             >
-              PostgreSQL 16
+              PostgreSQL 17
             </Typography>
             <Typography
               variant="caption"

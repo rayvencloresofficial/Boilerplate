@@ -37,7 +37,7 @@ git clone https://github.com/rayvencloresofficial/Boilerplate.git my-awesome-pro
 cd my-awesome-project
 ```
 
-*(Replace `my-awesome-project` with your actual project or client name).*
+_(Replace `my-awesome-project` with your actual project or client name)._
 
 ---
 
@@ -48,11 +48,13 @@ To make this repository your own standalone official project, remove the existin
 #### 2.1 Remove the Existing Git History
 
 - **On Windows (PowerShell):**
+
   ```powershell
   Remove-Item -Recurse -Force .git
   ```
 
 - **On macOS / Linux / Git Bash:**
+
   ```bash
   rm -rf .git
   ```
@@ -148,9 +150,10 @@ Copy the example environment files for all three workspaces:
 cp backend/.env.example backend/.env
 ```
 
-*(On Windows PowerShell: `Copy-Item backend/.env.example backend/.env`)*
+_(On Windows PowerShell: `Copy-Item backend/.env.example backend/.env`)_
 
 Verify contents of `backend/.env`:
+
 ```env
 PORT=5000
 NODE_ENV=development
@@ -168,9 +171,10 @@ JWT_REFRESH_EXPIRES_IN=7d
 cp database/.env.example database/.env
 ```
 
-*(On Windows PowerShell: `Copy-Item database/.env.example database/.env`)*
+_(On Windows PowerShell: `Copy-Item database/.env.example database/.env`)_
 
 Verify contents of `database/.env`:
+
 ```env
 DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db
 ```
@@ -181,9 +185,10 @@ DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/boilerplate_d
 cp frontend/.env.example frontend/.env
 ```
 
-*(On Windows PowerShell: `Copy-Item frontend/.env.example frontend/.env`)*
+_(On Windows PowerShell: `Copy-Item frontend/.env.example frontend/.env`)_
 
 Verify contents of `frontend/.env`:
+
 ```env
 VITE_API_URL=http://localhost:5000/api/v1
 ```
@@ -194,7 +199,7 @@ VITE_API_URL=http://localhost:5000/api/v1
 
 #### Option A: Using Docker Compose (Recommended)
 
-Start the PostgreSQL 16 Alpine container in the background:
+Start the PostgreSQL 17 Alpine container in the background:
 
 ```bash
 docker compose up -d
@@ -219,6 +224,7 @@ npm run db:seed
 ```
 
 > **Tip:** You can execute a full teardown, re-migration, and re-seed at any time with:
+>
 > ```bash
 > npm run db:reset
 > ```
@@ -241,11 +247,11 @@ npm run dev
 
 ### Accessing the Applications
 
-| Service | URL | Notes |
-| :--- | :--- | :--- |
-| **Frontend Web App** | [http://localhost:5173](http://localhost:5173) | Vite HMR + Joy UI Portal |
-| **Backend REST API** | [http://localhost:5000/api/v1](http://localhost:5000/api/v1) | Express REST API |
-| **PostgreSQL Database** | `localhost:5432` | DB: `boilerplate_db` |
+| Service                 | URL                                                          | Notes                    |
+| :---------------------- | :----------------------------------------------------------- | :----------------------- |
+| **Frontend Web App**    | [http://localhost:5173](http://localhost:5173)               | Vite HMR + Joy UI Portal |
+| **Backend REST API**    | [http://localhost:5000/api/v1](http://localhost:5000/api/v1) | Express REST API         |
+| **PostgreSQL Database** | `localhost:5432`                                             | DB: `boilerplate_db`     |
 
 You can also run backend or frontend separately:
 
@@ -262,12 +268,12 @@ The database seeder provisions four demo accounts covering each role tier. All a
 
 **Password for all demo accounts:** `Password123!`
 
-| Role Persona | Email | Access Scope |
-| :--- | :--- | :--- |
-| 👑 **Super Admin** | `superadmin@example.com` | Full universal bypass. Unrestricted access to all modules, users, roles, and settings. |
-| 🛡️ **Administrator** | `admin@example.com` | User management (`users:*`), documents management (`documents:*`), role view, analytics, settings read. |
-| 💼 **Manager** | `manager@example.com` | User viewing (`users:read`), document authoring (`documents:read`, `documents:create`), settings read. |
-| 👤 **User** | `user@example.com` | Base authenticated identity. Read access to documents (`documents:read`) and settings (`settings:read`). |
+| Role Persona         | Email                    | Access Scope                                                                                             |
+| :------------------- | :----------------------- | :------------------------------------------------------------------------------------------------------- |
+| 👑 **Super Admin**   | `superadmin@example.com` | Full universal bypass. Unrestricted access to all modules, users, roles, and settings.                   |
+| 🛡️ **Administrator** | `admin@example.com`      | User management (`users:*`), documents management (`documents:*`), role view, analytics, settings read.  |
+| 💼 **Manager**       | `manager@example.com`    | User viewing (`users:read`), document authoring (`documents:read`, `documents:create`), settings read.   |
+| 👤 **User**          | `user@example.com`       | Base authenticated identity. Read access to documents (`documents:read`) and settings (`settings:read`). |
 
 > **Interactive Persona Switcher**: The frontend includes an active identity dropdown in the sidebar to test permissions without manually logging out.
 
@@ -277,15 +283,15 @@ The database seeder provisions four demo accounts covering each role tier. All a
 
 ### Root Commands
 
-| Command | Action |
-| :--- | :--- |
-| `npm run dev` | Start backend and frontend concurrently with colored terminal logs |
-| `npm run dev:backend` | Start backend development server (with `--watch`) |
-| `npm run dev:frontend` | Start frontend Vite development server |
-| `npm run build` | Build backend (`tsc`) and frontend (`vite build`) for production |
-| `npm run db:migrate` | Run all pending SQL migrations in `database/migrations/` |
-| `npm run db:seed` | Run all SQL seeders in `database/seeders/` |
-| `npm run db:reset` | Run full database migration and seed reset |
+| Command                | Action                                                             |
+| :--------------------- | :----------------------------------------------------------------- |
+| `npm run dev`          | Start backend and frontend concurrently with colored terminal logs |
+| `npm run dev:backend`  | Start backend development server (with `--watch`)                  |
+| `npm run dev:frontend` | Start frontend Vite development server                             |
+| `npm run build`        | Build backend (`tsc`) and frontend (`vite build`) for production   |
+| `npm run db:migrate`   | Run all pending SQL migrations in `database/migrations/`           |
+| `npm run db:seed`      | Run all SQL seeders in `database/seeders/`                         |
+| `npm run db:reset`     | Run full database migration and seed reset                         |
 
 ### Individual Workspace Commands
 

@@ -357,7 +357,7 @@ export default function Dashboard() {
               bold
               sx={{ mt: 1, fontFamily: "var(--font-code, monospace)" }}
             >
-              PostgreSQL 16
+              PostgreSQL 17
             </Typography>
             <Typography
               variant="caption"

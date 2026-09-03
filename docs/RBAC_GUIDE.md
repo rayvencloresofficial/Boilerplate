@@ -94,17 +94,17 @@ erDiagram
 
 ## 3. Seeded Default Roles & Permissions Matrix
 
-| Permission Slug | Module | Super Admin | Admin | Manager | User | Description |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| `users:read` | Users | ✅ *(Universal)* | ✅ | ✅ | ❌ | View user list & profiles |
-| `users:create` | Users | ✅ *(Universal)* | ✅ | ❌ | ❌ | Create new user accounts |
-| `users:update` | Users | ✅ *(Universal)* | ✅ | ❌ | ❌ | Edit user details & roles |
-| `users:delete` | Users | ✅ *(Universal)* | ✅ | ❌ | ❌ | Deactivate or delete accounts |
-| `roles:read` | Roles | ✅ *(Universal)* | ✅ | ❌ | ❌ | View roles and assigned permissions |
-| `roles:manage` | Roles | ✅ *(Universal)* | ❌ | ❌ | ❌ | Modify permissions on roles |
-| `analytics:read` | Analytics | ✅ *(Universal)* | ✅ | ✅ | ❌ | View system metrics and audit telemetry |
-| `settings:read` | Settings | ✅ *(Universal)* | ✅ | ✅ | ✅ | View application settings |
-| `settings:manage`| Settings | ✅ *(Universal)* | ❌ | ❌ | ❌ | Mutate system runtime parameters |
+| Permission Slug   | Module    |   Super Admin    | Admin | Manager | User | Description                             |
+| :---------------- | :-------- | :--------------: | :---: | :-----: | :--: | :-------------------------------------- |
+| `users:read`      | Users     | ✅ _(Universal)_ |  ✅   |   ✅    |  ❌  | View user list & profiles               |
+| `users:create`    | Users     | ✅ _(Universal)_ |  ✅   |   ❌    |  ❌  | Create new user accounts                |
+| `users:update`    | Users     | ✅ _(Universal)_ |  ✅   |   ❌    |  ❌  | Edit user details & roles               |
+| `users:delete`    | Users     | ✅ _(Universal)_ |  ✅   |   ❌    |  ❌  | Deactivate or delete accounts           |
+| `roles:read`      | Roles     | ✅ _(Universal)_ |  ✅   |   ❌    |  ❌  | View roles and assigned permissions     |
+| `roles:manage`    | Roles     | ✅ _(Universal)_ |  ❌   |   ❌    |  ❌  | Modify permissions on roles             |
+| `analytics:read`  | Analytics | ✅ _(Universal)_ |  ✅   |   ✅    |  ❌  | View system metrics and audit telemetry |
+| `settings:read`   | Settings  | ✅ _(Universal)_ |  ✅   |   ✅    |  ✅  | View application settings               |
+| `settings:manage` | Settings  | ✅ _(Universal)_ |  ❌   |   ❌    |  ❌  | Mutate system runtime parameters        |
 
 ---
 
@@ -112,34 +112,41 @@ erDiagram
 
 All demo accounts share the initial password: `Password123!`
 
-| Role Persona | Email | Access Scope |
-| :--- | :--- | :--- |
-| **👑 Super Admin** | `superadmin@example.com` | Unrestricted master access across all routes and resources. |
-| **🛡️ Administrator** | `admin@example.com` | User management (`users:*`), role viewing, analytics, read settings. |
-| **💼 Manager** | `manager@example.com` | User reading (`users:read`), analytics (`analytics:read`), read settings. |
-| **👤 Standard User** | `user@example.com` | Base authenticated identity (`settings:read` only). |
+| Role Persona         | Email                    | Access Scope                                                              |
+| :------------------- | :----------------------- | :------------------------------------------------------------------------ |
+| **👑 Super Admin**   | `superadmin@example.com` | Unrestricted master access across all routes and resources.               |
+| **🛡️ Administrator** | `admin@example.com`      | User management (`users:*`), role viewing, analytics, read settings.      |
+| **💼 Manager**       | `manager@example.com`    | User reading (`users:read`), analytics (`analytics:read`), read settings. |
+| **👤 Standard User** | `user@example.com`       | Base authenticated identity (`settings:read` only).                       |
 
 ---
 
 ## 5. Quickstart Guide
 
 ### Step 1: Start PostgreSQL
-Launch a clean PostgreSQL 16 container with the provided docker-compose configuration:
+
+Launch a clean PostgreSQL 17 container with the provided docker-compose configuration:
+
 ```bash
 docker compose up -d
 ```
 
 ### Step 2: Migrate & Seed the Database
+
 From the `database/` directory:
+
 ```bash
 cd database
 npm run migrate
 npm run seed
 ```
-*(Or directly from the project root: `npm run db:migrate` and `npm run db:seed`)*
+
+_(Or directly from the project root: `npm run db:migrate` and `npm run db:seed`)_
 
 ### Step 3: Start the Servers
+
 In terminal 1 (Backend API):
+
 ```bash
 cd backend
 npm run dev
@@ -147,6 +154,7 @@ npm run dev
 ```
 
 In terminal 2 (Frontend Client):
+
 ```bash
 cd frontend
 npm run dev
@@ -160,19 +168,29 @@ npm run dev
 ### Guarding Backend Routes (Express)
 
 #### Enforce Role Possession:
+
 ```typescript
-import { requireRole } from '../middlewares/auth/authorization.middleware.js';
+import { requireRole } from "../middlewares/auth/authorization.middleware.js";
 
 // Accessible only by super_admin and admin (super_admin always bypasses)
-router.get('/admin/audit', requireRole('super_admin', 'admin'), auditController);
+router.get(
+  "/admin/audit",
+  requireRole("super_admin", "admin"),
+  auditController,
+);
 ```
 
 #### Enforce Fine-Grained Permissions:
+
 ```typescript
-import { requirePermission } from '../middlewares/auth/authorization.middleware.js';
+import { requirePermission } from "../middlewares/auth/authorization.middleware.js";
 
 // Accessible only by users who hold the 'users:create' permission
-router.post('/users', requirePermission('users:create'), userController.createUser);
+router.post(
+  "/users",
+  requirePermission("users:create"),
+  userController.createUser,
+);
 ```
 
 ---
@@ -180,6 +198,7 @@ router.post('/users', requirePermission('users:create'), userController.createUs
 ### Guarding Frontend UI Elements & Routes (React)
 
 #### Route Guarding:
+
 ```tsx
 <Route
   path="users"
@@ -192,20 +211,22 @@ router.post('/users', requirePermission('users:create'), userController.createUs
 ```
 
 #### Declarative Component Gate:
+
 ```tsx
-import PermissionGate from '@/hocs/PermissionGate';
+import PermissionGate from "@/hocs/PermissionGate";
 
 // Conditionally render button or render it disabled with a tooltip
 <PermissionGate permission="users:delete" disableOnly>
   <Button colorScheme="error">Delete User</Button>
-</PermissionGate>
+</PermissionGate>;
 ```
 
 #### Programmatic Evaluation with `useAuth`:
+
 ```tsx
 const { hasPermission, hasRole } = useAuth();
 
-if (hasPermission('analytics:read')) {
+if (hasPermission("analytics:read")) {
   // Show analytics widget
 }
 ```

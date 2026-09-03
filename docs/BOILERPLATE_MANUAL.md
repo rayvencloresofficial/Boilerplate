@@ -48,7 +48,7 @@ graph TD
     Runner[Atomic Transaction Runner]
   end
 
-  Repo --> Postgres[(PostgreSQL 16+ Engine)]
+  Repo --> Postgres[(PostgreSQL 17+ Engine)]
   Runner --> Postgres
 ```
 
@@ -132,7 +132,7 @@ graph TD
 │   ├── index.html
 │   ├── package.json
 │   └── vite.config.ts
-├── docker-compose.yml            # PostgreSQL 16 Alpine container definition
+├── docker-compose.yml            # PostgreSQL 17 Alpine container definition
 ├── package.json                  # Root monorepo workspace configuration
 └── README.md                     # Project quickstart & setup instructions
 ```
@@ -145,29 +145,29 @@ The monorepo uses environment files isolated per workspace:
 
 ### 3.1 Backend Configuration (`backend/.env`)
 
-| Variable | Type | Default / Example | Purpose |
-| :--- | :--- | :--- | :--- |
-| `PORT` | `number` | `5000` | HTTP port where Express listens |
-| `NODE_ENV` | `string` | `development` | Runtime environment (`development`, `production`, `test`) |
-| `CLIENT_URL` | `string` | `http://localhost:5173` | Allowed CORS origin |
-| `DATABASE_URL` | `string` | `postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` | PostgreSQL connection string |
-| `JWT_SECRET` | `string` | *random string* | Secret key used to sign Access Tokens |
-| `JWT_EXPIRES_IN` | `string` | `1h` | Access Token lifetime (e.g. `15m`, `1h`) |
-| `JWT_REFRESH_SECRET` | `string` | *random string* | Secret key used to sign Refresh Tokens |
-| `JWT_REFRESH_EXPIRES_IN` | `string` | `7d` | Refresh Token lifetime (e.g. `7d`, `30d`) |
+| Variable                 | Type     | Default / Example                                                      | Purpose                                                   |
+| :----------------------- | :------- | :--------------------------------------------------------------------- | :-------------------------------------------------------- |
+| `PORT`                   | `number` | `5000`                                                                 | HTTP port where Express listens                           |
+| `NODE_ENV`               | `string` | `development`                                                          | Runtime environment (`development`, `production`, `test`) |
+| `CLIENT_URL`             | `string` | `http://localhost:5173`                                                | Allowed CORS origin                                       |
+| `DATABASE_URL`           | `string` | `postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` | PostgreSQL connection string                              |
+| `JWT_SECRET`             | `string` | _random string_                                                        | Secret key used to sign Access Tokens                     |
+| `JWT_EXPIRES_IN`         | `string` | `1h`                                                                   | Access Token lifetime (e.g. `15m`, `1h`)                  |
+| `JWT_REFRESH_SECRET`     | `string` | _random string_                                                        | Secret key used to sign Refresh Tokens                    |
+| `JWT_REFRESH_EXPIRES_IN` | `string` | `7d`                                                                   | Refresh Token lifetime (e.g. `7d`, `30d`)                 |
 
 ### 3.2 Database Configuration (`database/.env`)
 
-| Variable | Type | Default / Example | Purpose |
-| :--- | :--- | :--- | :--- |
+| Variable       | Type     | Default / Example                                                      | Purpose                      |
+| :------------- | :------- | :--------------------------------------------------------------------- | :--------------------------- |
 | `DATABASE_URL` | `string` | `postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` | PostgreSQL connection string |
 
-*(Note: If `database/.env` is absent, the runner automatically falls back to reading `backend/.env`).*
+_(Note: If `database/.env` is absent, the runner automatically falls back to reading `backend/.env`)._
 
 ### 3.3 Frontend Configuration (`frontend/.env`)
 
-| Variable | Type | Default / Example | Purpose |
-| :--- | :--- | :--- | :--- |
+| Variable       | Type     | Default / Example              | Purpose                                       |
+| :------------- | :------- | :----------------------------- | :-------------------------------------------- |
 | `VITE_API_URL` | `string` | `http://localhost:5000/api/v1` | Base REST API URL accessed by client services |
 
 ---
@@ -190,6 +190,7 @@ All database state is managed inside `database/` using raw SQL files executed by
 ### Automatic Database Creation
 
 When you run `npm run db:migrate`, `database/src/client.ts` attempts to connect to the database specified in `DATABASE_URL` (e.g., `boilerplate_db`). If the database does not exist:
+
 1. It catches error code `3D000` (`database does not exist`).
 2. Temporarily connects to the default `postgres` database on that host.
 3. Runs `CREATE DATABASE boilerplate_db;`.
@@ -202,6 +203,7 @@ When you run `npm run db:migrate`, `database/src/client.ts` attempts to connect 
    database/migrations/004_create_projects_schema.sql
    ```
 2. Write idempotent SQL DDL statements:
+
    ```sql
    CREATE TABLE IF NOT EXISTS projects (
        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -216,6 +218,7 @@ When you run `npm run db:migrate`, `database/src/client.ts` attempts to connect 
    CREATE INDEX IF NOT EXISTS idx_projects_owner ON projects (owner_id);
    CREATE INDEX IF NOT EXISTS idx_projects_status ON projects (status);
    ```
+
 3. Apply the migration:
    ```bash
    npm run db:migrate
@@ -228,6 +231,7 @@ When you run `npm run db:migrate`, `database/src/client.ts` attempts to connect 
    database/seeders/004_seed_projects.sql
    ```
 2. Insert permissions, map them to roles, and optionally insert sample fixtures:
+
    ```sql
    -- 1. Register permissions
    INSERT INTO permissions (id, slug, module, description) VALUES
@@ -241,6 +245,7 @@ When you run `npm run db:migrate`, `database/src/client.ts` attempts to connect 
    WHERE slug IN ('projects:read', 'projects:create')
    ON CONFLICT DO NOTHING;
    ```
+
 3. Execute the seeders:
    ```bash
    npm run db:seed
@@ -265,6 +270,7 @@ refresh_tokens                    role_permissions
 ```
 
 ### Key Components:
+
 - **`users`**: Contains email, password hash (bcrypt), name, active flag, and timestamps.
 - **`roles`**: Contains name (`super_admin`, `admin`, `manager`, `user`), description, and `is_system` flag.
 - **`permissions`**: Granular action identifier with `slug` (e.g., `users:create`, `documents:read`) and `module`.
@@ -273,11 +279,13 @@ refresh_tokens                    role_permissions
 ### Super Admin Universal Bypass
 
 The `super_admin` role possesses universal clearance. In the backend authorization middleware:
+
 ```typescript
-if (req.user?.roles.includes('super_admin')) {
+if (req.user?.roles.includes("super_admin")) {
   return next(); // Unconditionally bypasses granular permission requirements
 }
 ```
+
 The frontend `ProtectedRoute` and `PermissionGate` components mirror this behavior.
 
 ### Protecting Backend Endpoints
@@ -285,9 +293,12 @@ The frontend `ProtectedRoute` and `PermissionGate` components mirror this behavi
 In your Express routes (`backend/src/routes/*.routes.ts`):
 
 ```typescript
-import { Router } from 'express';
-import { authenticate } from '../middlewares/auth/authentication.middleware.js';
-import { requirePermission, requireRole } from '../middlewares/auth/authorization.middleware.js';
+import { Router } from "express";
+import { authenticate } from "../middlewares/auth/authentication.middleware.js";
+import {
+  requirePermission,
+  requireRole,
+} from "../middlewares/auth/authorization.middleware.js";
 
 const router = Router();
 
@@ -295,10 +306,18 @@ const router = Router();
 router.use(authenticate);
 
 // 2. Guard route by granular permission slug
-router.post('/projects', requirePermission('projects:create'), projectController.createProject);
+router.post(
+  "/projects",
+  requirePermission("projects:create"),
+  projectController.createProject,
+);
 
 // 3. Guard route by role
-router.delete('/projects/:id', requireRole('super_admin', 'admin'), projectController.deleteProject);
+router.delete(
+  "/projects/:id",
+  requireRole("super_admin", "admin"),
+  projectController.deleteProject,
+);
 ```
 
 ### Protecting Frontend UI Components & Routes
@@ -424,16 +443,16 @@ export interface Database {
 #### 2. Create Zod Validation Schemas in `backend/src/validations/article.validation.ts`
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createArticleSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255),
+  title: z.string().min(1, "Title is required").max(255),
   content: z.string().optional(),
-  status: z.enum(['draft', 'published']).default('draft'),
+  status: z.enum(["draft", "published"]).default("draft"),
 });
 
 export const articleIdParamSchema = z.object({
-  id: z.string().uuid('Invalid article UUID'),
+  id: z.string().uuid("Invalid article UUID"),
 });
 
 export type CreateArticleInput = z.infer<typeof createArticleSchema>;
@@ -442,28 +461,31 @@ export type CreateArticleInput = z.infer<typeof createArticleSchema>;
 #### 3. Create Repository in `backend/src/repositories/article.repository.ts`
 
 ```typescript
-import { db } from '../config/database.js';
-import type { CreateArticleInput } from '../validations/article.validation.js';
+import { db } from "../config/database.js";
+import type { CreateArticleInput } from "../validations/article.validation.js";
 
 export const findArticles = async () => {
   return await db
-    .selectFrom('articles')
+    .selectFrom("articles")
     .selectAll()
-    .orderBy('created_at', 'desc')
+    .orderBy("created_at", "desc")
     .execute();
 };
 
 export const findArticleById = async (id: string) => {
   return await db
-    .selectFrom('articles')
+    .selectFrom("articles")
     .selectAll()
-    .where('id', '=', id)
+    .where("id", "=", id)
     .executeTakeFirst();
 };
 
-export const insertArticle = async (data: CreateArticleInput, authorId?: string) => {
+export const insertArticle = async (
+  data: CreateArticleInput,
+  authorId?: string,
+) => {
   return await db
-    .insertInto('articles')
+    .insertInto("articles")
     .values({
       title: data.title,
       content: data.content ?? null,
@@ -476,9 +498,9 @@ export const insertArticle = async (data: CreateArticleInput, authorId?: string)
 
 export const deleteArticleById = async (id: string) => {
   return await db
-    .deleteFrom('articles')
-    .where('id', '=', id)
-    .returning(['id'])
+    .deleteFrom("articles")
+    .where("id", "=", id)
+    .returning(["id"])
     .executeTakeFirst();
 };
 ```
@@ -486,9 +508,9 @@ export const deleteArticleById = async (id: string) => {
 #### 4. Create Service in `backend/src/services/article.service.ts`
 
 ```typescript
-import * as articleRepo from '../repositories/article.repository.js';
-import type { CreateArticleInput } from '../validations/article.validation.js';
-import { NotFoundError } from '../errors/AppError.js';
+import * as articleRepo from "../repositories/article.repository.js";
+import type { CreateArticleInput } from "../validations/article.validation.js";
+import { NotFoundError } from "../errors/AppError.js";
 
 export const listArticles = async () => {
   return await articleRepo.findArticles();
@@ -500,7 +522,10 @@ export const getArticle = async (id: string) => {
   return article;
 };
 
-export const createArticle = async (data: CreateArticleInput, authorId?: string) => {
+export const createArticle = async (
+  data: CreateArticleInput,
+  authorId?: string,
+) => {
   return await articleRepo.insertArticle(data, authorId);
 };
 
@@ -514,11 +539,15 @@ export const removeArticle = async (id: string) => {
 #### 5. Create Controller in `backend/src/controllers/article.controller.ts`
 
 ```typescript
-import type { Response, NextFunction } from 'express';
-import type { AuthenticatedRequest } from '../types/auth.js';
-import * as articleService from '../services/article.service.js';
+import type { Response, NextFunction } from "express";
+import type { AuthenticatedRequest } from "../types/auth.js";
+import * as articleService from "../services/article.service.js";
 
-export const getArticles = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getArticles = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const articles = await articleService.listArticles();
     res.status(200).json({ success: true, data: articles });
@@ -527,7 +556,11 @@ export const getArticles = async (req: AuthenticatedRequest, res: Response, next
   }
 };
 
-export const createArticle = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const createArticle = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const article = await articleService.createArticle(req.body, req.user?.id);
     res.status(201).json({ success: true, data: article });
@@ -536,10 +569,16 @@ export const createArticle = async (req: AuthenticatedRequest, res: Response, ne
   }
 };
 
-export const deleteArticle = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const deleteArticle = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     await articleService.removeArticle(req.params.id);
-    res.status(200).json({ success: true, message: 'Article deleted successfully' });
+    res
+      .status(200)
+      .json({ success: true, message: "Article deleted successfully" });
   } catch (err) {
     next(err);
   }
@@ -549,28 +588,35 @@ export const deleteArticle = async (req: AuthenticatedRequest, res: Response, ne
 #### 6. Register Routes in `backend/src/routes/article.routes.ts`
 
 ```typescript
-import { Router } from 'express';
-import * as articleController from '../controllers/article.controller.js';
-import { authenticate } from '../middlewares/auth/authentication.middleware.js';
-import { requirePermission } from '../middlewares/auth/authorization.middleware.js';
-import { validateRequest } from '../middlewares/validate.middleware.js';
-import { createArticleSchema, articleIdParamSchema } from '../validations/article.validation.js';
+import { Router } from "express";
+import * as articleController from "../controllers/article.controller.js";
+import { authenticate } from "../middlewares/auth/authentication.middleware.js";
+import { requirePermission } from "../middlewares/auth/authorization.middleware.js";
+import { validateRequest } from "../middlewares/validate.middleware.js";
+import {
+  createArticleSchema,
+  articleIdParamSchema,
+} from "../validations/article.validation.js";
 
 const router = Router();
 router.use(authenticate);
 
-router.get('/', requirePermission('articles:read'), articleController.getArticles);
+router.get(
+  "/",
+  requirePermission("articles:read"),
+  articleController.getArticles,
+);
 router.post(
-  '/',
-  requirePermission('articles:create'),
+  "/",
+  requirePermission("articles:create"),
   validateRequest({ body: createArticleSchema }),
-  articleController.createArticle
+  articleController.createArticle,
 );
 router.delete(
-  '/:id',
-  requirePermission('articles:delete'),
+  "/:id",
+  requirePermission("articles:delete"),
   validateRequest({ params: articleIdParamSchema }),
-  articleController.deleteArticle
+  articleController.deleteArticle,
 );
 
 export default router;
@@ -579,9 +625,9 @@ export default router;
 #### 7. Mount in `backend/src/routes/index.ts`
 
 ```typescript
-import articleRoutes from './article.routes.js';
+import articleRoutes from "./article.routes.js";
 // ...
-router.use('/articles', articleRoutes);
+router.use("/articles", articleRoutes);
 ```
 
 ---
@@ -604,38 +650,40 @@ export interface ArticleItem {
 export interface CreateArticleDto {
   title: string;
   content?: string;
-  status?: 'draft' | 'published';
+  status?: "draft" | "published";
 }
 ```
 
 #### 2. Create API Service in `frontend/src/services/article.api.ts`
 
 ```typescript
-import type { ArticleItem, CreateArticleDto } from '../types/article';
+import type { ArticleItem, CreateArticleDto } from "../types/article";
 
-const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/articles`;
+const BASE_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1"}/articles`;
 
 export const getArticlesApi = async (): Promise<ArticleItem[]> => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   const res = await fetch(BASE_URL, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error('Failed to fetch articles');
+  if (!res.ok) throw new Error("Failed to fetch articles");
   const json = await res.json();
   return json.data;
 };
 
-export const createArticleApi = async (payload: CreateArticleDto): Promise<ArticleItem> => {
-  const token = localStorage.getItem('access_token');
+export const createArticleApi = async (
+  payload: CreateArticleDto,
+): Promise<ArticleItem> => {
+  const token = localStorage.getItem("access_token");
   const res = await fetch(BASE_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error('Failed to create article');
+  if (!res.ok) throw new Error("Failed to create article");
   const json = await res.json();
   return json.data;
 };
@@ -658,7 +706,7 @@ import { BookOpen } from "lucide-react";
 #### 4. Register Protected Route in `frontend/src/routes/TestRoutes.tsx`
 
 ```tsx
-import ArticlesPage from '../pages/test/articles/ArticlesPage';
+import ArticlesPage from "../pages/test/articles/ArticlesPage";
 
 // Inside <Route element={<AppLayout />}>:
 <Route
@@ -668,20 +716,20 @@ import ArticlesPage from '../pages/test/articles/ArticlesPage';
       <ArticlesPage />
     </ProtectedRoute>
   }
-/>
+/>;
 ```
 
 #### 5. Build Page View in `frontend/src/pages/test/articles/ArticlesPage.tsx`
 
 ```tsx
-import React, { useEffect, useState } from 'react';
-import { Box, Sheet, Stack, CircularProgress } from '@mui/joy';
-import Typography from '@/components/ui/Typography';
-import Button from '@/components/ui/Button';
-import PermissionGate from '@/routes/PermissionGate';
-import { useThemeColors } from '@/hooks/useThemeColors';
-import { getArticlesApi, createArticleApi } from '@/services/article.api';
-import type { ArticleItem } from '@/types/article';
+import React, { useEffect, useState } from "react";
+import { Box, Sheet, Stack, CircularProgress } from "@mui/joy";
+import Typography from "@/components/ui/Typography";
+import Button from "@/components/ui/Button";
+import PermissionGate from "@/routes/PermissionGate";
+import { useThemeColors } from "@/hooks/useThemeColors";
+import { getArticlesApi, createArticleApi } from "@/services/article.api";
+import type { ArticleItem } from "@/types/article";
 
 export default function ArticlesPage() {
   const { colors } = useThemeColors();
@@ -705,15 +753,20 @@ export default function ArticlesPage() {
   }, []);
 
   const handleCreate = async () => {
-    const title = prompt('Enter article title:');
+    const title = prompt("Enter article title:");
     if (!title) return;
-    await createArticleApi({ title, status: 'published' });
+    await createArticleApi({ title, status: "published" });
     fetchArticles();
   };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 3 }}
+      >
         <Typography variant="title" size="lg" bold>
           Articles Management
         </Typography>
@@ -730,7 +783,7 @@ export default function ArticlesPage() {
       </Stack>
 
       {loading ? (
-        <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />
+        <CircularProgress sx={{ display: "block", mx: "auto", my: 4 }} />
       ) : (
         <Stack spacing={2}>
           {articles.map((art) => (
@@ -738,7 +791,7 @@ export default function ArticlesPage() {
               key={art.id}
               sx={{
                 p: 2,
-                borderRadius: '8px',
+                borderRadius: "8px",
                 border: `1px solid ${colors.cardBorder}`,
                 bgcolor: colors.surface,
               }}
@@ -746,8 +799,13 @@ export default function ArticlesPage() {
               <Typography variant="title" size="sm" bold>
                 {art.title}
               </Typography>
-              <Typography variant="body" size="xs" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                Status: {art.status} • Created: {new Date(art.created_at).toLocaleDateString()}
+              <Typography
+                variant="body"
+                size="xs"
+                sx={{ color: "text.secondary", mt: 0.5 }}
+              >
+                Status: {art.status} • Created:{" "}
+                {new Date(art.created_at).toLocaleDateString()}
               </Typography>
             </Sheet>
           ))}
@@ -774,6 +832,7 @@ export default function ArticlesPage() {
 ### Fast Refresh Strict Hygiene
 
 To maintain Vite Hot Module Replacement (HMR) reliability:
+
 - Files exporting React components **must only export React components**.
 - Never export constants, helper functions, or TypeScript interfaces from the same file as a React component.
 - Place types in `src/types/`, constants in `src/constants/`, and utility functions in `src/utils/`.
@@ -785,10 +844,10 @@ Avoid raw inline styles or CSS files for component styling. Use Joy UI design to
 ```tsx
 <Box
   sx={{
-    bgcolor: 'background.surface',
-    border: '1px solid',
-    borderColor: 'divider',
-    borderRadius: 'md',
+    bgcolor: "background.surface",
+    border: "1px solid",
+    borderColor: "divider",
+    borderRadius: "md",
     p: 2,
   }}
 >
@@ -827,29 +886,32 @@ The central error handling middleware (`backend/src/middlewares/error.middleware
 For operations involving multiple inserts, updates, or deletes, wrap the logic in a Kysely transaction:
 
 ```typescript
-import { db } from '../config/database.js';
+import { db } from "../config/database.js";
 
-export const transferOwnership = async (projectId: string, newOwnerId: string) => {
+export const transferOwnership = async (
+  projectId: string,
+  newOwnerId: string,
+) => {
   return await db.transaction().execute(async (trx) => {
     // Step 1: Verify project exists
     const project = await trx
-      .selectFrom('projects')
+      .selectFrom("projects")
       .selectAll()
-      .where('id', '=', projectId)
+      .where("id", "=", projectId)
       .executeTakeFirstOrThrow();
 
     // Step 2: Update project owner
     await trx
-      .updateTable('projects')
+      .updateTable("projects")
       .set({ owner_id: newOwnerId, updated_at: new Date() })
-      .where('id', '=', projectId)
+      .where("id", "=", projectId)
       .execute();
 
     // Step 3: Insert audit log entry
     await trx
-      .insertInto('audit_logs')
+      .insertInto("audit_logs")
       .values({
-        action: 'transfer_ownership',
+        action: "transfer_ownership",
         entity_id: projectId,
         previous_owner: project.owner_id,
         new_owner: newOwnerId,
@@ -872,6 +934,7 @@ npm run build
 ```
 
 This triggers:
+
 1. `npm run build -w backend` $\rightarrow$ Compiles TypeScript via `tsc` into `backend/dist`.
 2. `npm run build -w frontend` $\rightarrow$ Compiles the SPA using Vite into `frontend/dist`.
 
@@ -930,24 +993,29 @@ server {
 ## 10. Troubleshooting & FAQ
 
 ### Q1: `ECONNREFUSED 127.0.0.1:5432` during migration or server start
+
 - **Cause**: PostgreSQL is not running or listening on port 5432.
 - **Solution**:
   - If using Docker: run `docker compose up -d` and verify health with `docker compose ps`.
   - If running local PostgreSQL: verify service status (`sudo systemctl status postgresql` or Windows Services).
 
 ### Q2: `database "boilerplate_db" does not exist`
+
 - **Cause**: Connecting with a tool before the migration engine ran.
 - **Solution**: Run `npm run db:migrate`. The runner connects to the PostgreSQL server and creates `boilerplate_db` automatically.
 
 ### Q3: React Fast Refresh Warning: `Fast Refresh only works when a file only exports components`
+
 - **Cause**: Exporting a helper function, constant, or hook from a file containing a React component.
 - **Solution**: Move constants to `src/constants/`, types to `src/types/`, and non-component utilities to `src/utils/`.
 
 ### Q4: CORS Error in Browser Console (`Access-Control-Allow-Origin`)
+
 - **Cause**: `CLIENT_URL` in `backend/.env` does not match the frontend origin.
 - **Solution**: Verify that `CLIENT_URL` is set to `http://localhost:5173` (or your production frontend URL) and restart the backend server.
 
 ### Q5: How do I completely wipe and recreate the database?
+
 - **Solution**: Run:
   ```bash
   npm run db:reset
