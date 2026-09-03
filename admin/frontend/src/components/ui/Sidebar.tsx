@@ -108,6 +108,8 @@ export default function Sidebar({
     if (user?.roles?.includes("super_admin")) return "super_admin";
     if (user?.roles?.includes("admin")) return "admin";
     if (user?.roles?.includes("manager")) return "manager";
+    const custom = user?.roles?.find((r) => r !== "user");
+    if (custom) return custom;
     return "user";
   };
 

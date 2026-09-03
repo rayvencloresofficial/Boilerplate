@@ -40,15 +40,6 @@ export interface RolePermissionTable {
   assigned_at: ColumnType<Date, string | undefined, never>;
 }
 
-export interface RefreshTokenTable {
-  id: Generated<string>;
-  user_id: string;
-  token_hash: string;
-  expires_at: ColumnType<Date, string | Date, never>;
-  revoked_at: ColumnType<Date | null, string | Date | null, string | Date | null>;
-  created_at: ColumnType<Date, string | undefined, never>;
-}
-
 export interface SettingTable {
   id: Generated<string>;
   key: string;
@@ -60,24 +51,11 @@ export interface SettingTable {
   updated_at: ColumnType<Date, string | undefined, string>;
 }
 
-export interface DocumentTable {
-  id: Generated<string>;
-  title: string;
-  content: string | null;
-  category: Generated<string>;
-  status: Generated<string>;
-  created_by: string | null;
-  created_at: ColumnType<Date, string | undefined, never>;
-  updated_at: ColumnType<Date, string | undefined, string>;
-}
-
 export interface Database {
   users: UserTable;
   roles: RoleTable;
   permissions: PermissionTable;
   user_roles: UserRoleTable;
   role_permissions: RolePermissionTable;
-  refresh_tokens: RefreshTokenTable;
   settings: SettingTable;
-  documents: DocumentTable;
 }

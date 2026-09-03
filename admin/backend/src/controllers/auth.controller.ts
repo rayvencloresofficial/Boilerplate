@@ -34,7 +34,7 @@ export const register = async (req: AuthenticatedRequest, res: Response, next: N
   } catch (error) {
     next(error);
   }
-};
+};  
 
 export const refresh = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {

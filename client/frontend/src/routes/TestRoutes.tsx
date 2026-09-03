@@ -10,7 +10,6 @@ import RbacTestPortal from "../pages/test/testpad/RbacTestPortal";
 import UsersPage from "../pages/test/users/UsersPage";
 import RolesPage from "../pages/test/roles/RolesPage";
 import SettingsPage from "../pages/test/setting/settings";
-import DocumentsPage from "../pages/test/documents/DocumentsPage";
 import Unauthorized from "../pages/Unauthorized";
 import NotFound from "../pages/NotFound";
 
@@ -28,14 +27,6 @@ export default function AppRoutes() {
             <Route index element={<Dashboard />} />
             <Route path="test" element={<RbacTestPortal />} />
             <Route path="testpad" element={<RbacTestPortal />} />
-            <Route
-              path="documents"
-              element={
-                <ProtectedRoute requiredPermission="documents:read">
-                  <DocumentsPage />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="users"
               element={

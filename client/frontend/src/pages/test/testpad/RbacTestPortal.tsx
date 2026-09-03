@@ -23,8 +23,6 @@ import {
   RotateCcw,
   Zap,
   Check,
-  FileText,
-  FolderPlus,
 } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useThemeColors } from "../../../hooks/useThemeColors";
@@ -113,24 +111,6 @@ const TEST_ENDPOINTS: TestEndpointConfig[] = [
     guardType: "permission",
     icon: <Flame size={15} />,
   },
-  {
-    id: "documents_read",
-    name: "Access Enterprise Documents",
-    endpoint: "/documents-read",
-    method: "GET",
-    requiredGuard: "documents:read",
-    guardType: "permission",
-    icon: <FileText size={15} />,
-  },
-  {
-    id: "documents_create",
-    name: "Publish New Document",
-    endpoint: "/documents-create",
-    method: "POST",
-    requiredGuard: "documents:create",
-    guardType: "permission",
-    icon: <FolderPlus size={15} />,
-  },
 ];
 
 const ALL_SYSTEM_PERMISSIONS = [
@@ -162,21 +142,6 @@ const ALL_SYSTEM_PERMISSIONS = [
     slug: "settings:manage",
     module: "settings",
     desc: "Mutate system parameters",
-  },
-  {
-    slug: "documents:read",
-    module: "documents",
-    desc: "Browse and view enterprise documents",
-  },
-  {
-    slug: "documents:create",
-    module: "documents",
-    desc: "Draft and publish new documents",
-  },
-  {
-    slug: "documents:delete",
-    module: "documents",
-    desc: "Purge documents from repository",
   },
 ];
 

@@ -1,4 +1,4 @@
-export type DemoAccountRole = 'super_admin' | 'admin' | 'manager' | 'user';
+export type DemoAccountRole = 'super_admin' | 'admin' | 'manager' | 'user' | string;
 
 export interface DemoCredentialItem {
   email: string;
@@ -7,7 +7,7 @@ export interface DemoCredentialItem {
   color: string;
 }
 
-export const DEMO_CREDENTIALS: Record<DemoAccountRole, DemoCredentialItem> = {
+export const DEMO_CREDENTIALS: Record<string, DemoCredentialItem> = {
   super_admin: {
     email: 'superadmin@example.com',
     pass: 'Password123!',

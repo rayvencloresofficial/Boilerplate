@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes.js';
 import userRoutes from './user.routes.js';
-import roleRoutes from './role.routes.js';
-import permissionRoutes from './permission.routes.js';
-import rbacTestRoutes from './rbacTest.routes.js';
 import settingsRoutes from './settings.routes.js';
 import { db } from '../config/database.js';
 import { sql } from 'kysely';
@@ -29,12 +26,9 @@ router.get('/health', async (_req, res) => {
   }
 });
 
-// Mounted API sub-routers
+// Mounted API sub-routers for regular client operations
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/roles', roleRoutes);
-router.use('/permissions', permissionRoutes);
-router.use('/test-rbac', rbacTestRoutes);
 router.use('/settings', settingsRoutes);
 
 export default router;

@@ -27,7 +27,6 @@ import {
   ChevronDown,
   LayoutDashboard,
   Settings,
-  FileText,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useThemeColors } from "../../hooks/useThemeColors";
@@ -66,12 +65,7 @@ const TEST_MENU_ITEMS: MenuItem[] = [
     icon: <FlaskConical size={18} />,
     badge: "DEV",
   },
-  {
-    title: "Documents",
-    path: "/test/documents",
-    icon: <FileText size={18} />,
-    requiredPermission: "documents:read",
-  },
+
   {
     title: "Access Control",
     icon: <ShieldCheck size={18} />,
@@ -221,7 +215,10 @@ export default function Sidebar({
           <ShieldCheck size={20} />
         </Box>
         <Box sx={{ minWidth: 0 }}>
-          <Typography level="title-sm" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+          <Typography
+            level="title-sm"
+            sx={{ fontWeight: 700, lineHeight: 1.2 }}
+          >
             RBAC Core
           </Typography>
           <Typography
@@ -271,7 +268,7 @@ export default function Sidebar({
         >
           {demoAccounts.map((account) => (
             <Option key={account.email} value={account.email}>
-              {account.title} ({account.email.split('@')[0]})
+              {account.title} ({account.email.split("@")[0]})
             </Option>
           ))}
         </Select>
@@ -294,7 +291,10 @@ export default function Sidebar({
           Navigation
         </Typography>
 
-        <List size="sm" sx={{ "--ListItem-radius": "6px", "--List-gap": "4px" }}>
+        <List
+          size="sm"
+          sx={{ "--ListItem-radius": "6px", "--List-gap": "4px" }}
+        >
           {filteredMenuItems.map((item) => {
             if (item.children) {
               const isGroupOpen = !!openGroups[item.title];
@@ -336,7 +336,10 @@ export default function Sidebar({
                   </ListItemButton>
 
                   {isGroupOpen && (
-                    <List size="sm" sx={{ pl: 2, pt: 0.5, "--List-gap": "3px" }}>
+                    <List
+                      size="sm"
+                      sx={{ pl: 2, pt: 0.5, "--List-gap": "3px" }}
+                    >
                       {item.children.map((child) => {
                         const isChildActive = location.pathname === child.path;
 
@@ -357,7 +360,9 @@ export default function Sidebar({
                                 bgcolor: isChildActive
                                   ? `${colors.accent} !important`
                                   : "transparent",
-                                color: isChildActive ? "#ffffff !important" : "inherit",
+                                color: isChildActive
+                                  ? "#ffffff !important"
+                                  : "inherit",
                                 "&.Mui-selected, &.Mui-selected:hover": {
                                   bgcolor: `${colors.accent} !important`,
                                   color: "#ffffff !important",
@@ -381,7 +386,13 @@ export default function Sidebar({
                               >
                                 {child.icon}
                               </ListItemDecorator>
-                              <ListItemContent sx={{ color: isChildActive ? "#ffffff !important" : "inherit" }}>
+                              <ListItemContent
+                                sx={{
+                                  color: isChildActive
+                                    ? "#ffffff !important"
+                                    : "inherit",
+                                }}
+                              >
                                 {child.title}
                               </ListItemContent>
                             </ListItemButton>
@@ -396,7 +407,8 @@ export default function Sidebar({
 
             const isActive =
               item.path === "/test"
-                ? location.pathname === "/test" || location.pathname === "/test/"
+                ? location.pathname === "/test" ||
+                  location.pathname === "/test/"
                 : location.pathname === item.path;
 
             return (
@@ -438,7 +450,9 @@ export default function Sidebar({
                   >
                     {item.icon}
                   </ListItemDecorator>
-                  <ListItemContent sx={{ color: isActive ? "#ffffff !important" : "inherit" }}>
+                  <ListItemContent
+                    sx={{ color: isActive ? "#ffffff !important" : "inherit" }}
+                  >
                     {item.title}
                   </ListItemContent>
                   {item.badge && (
@@ -467,8 +481,20 @@ export default function Sidebar({
       </Box>
 
       {/* 4. Footer User Profile & Actions */}
-      <Box sx={{ pt: 1.5, mt: "auto", borderTop: "1px solid", borderColor: "divider" }}>
-        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ mb: 1.5 }}>
+      <Box
+        sx={{
+          pt: 1.5,
+          mt: "auto",
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={1.25}
+          alignItems="center"
+          sx={{ mb: 1.5 }}
+        >
           <Avatar
             size="sm"
             sx={{

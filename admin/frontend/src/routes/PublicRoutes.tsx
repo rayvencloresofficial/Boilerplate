@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router-dom";
 
 import Home from "@/pages/public/home/Home";
 import About from "@/pages/public/about/About";
+import AuthLayout from "@/layouts/AuthLayout";
+import LoginPage from "@/pages/public/auth/LoginPage";
 import TestRoutes from "@/routes/TestRoutes";
 import NotFound from "@/pages/NotFound";
 
@@ -15,6 +17,10 @@ export default function PublicRoutes() {
       </Route>
 
       {/* 2. AUTH ROUTES */}
+      <Route element={<AuthLayout />}>
+        <Route path="login" element={<LoginPage />} />
+        <Route path="auth/login" element={<LoginPage />} />
+      </Route>
 
       {/* 3. BUSINESS ROUTES */}
 

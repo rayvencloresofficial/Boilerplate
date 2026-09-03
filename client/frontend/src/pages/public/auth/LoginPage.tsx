@@ -8,56 +8,48 @@ import {
   Input,
   Alert,
   Divider,
-  IconButton,
+  Link,
+  Chip,
 } from "@mui/joy";
 import {
-  ShieldCheck,
+  UserCheck,
   ArrowRight,
   Lock,
   Mail,
-  Sun,
-  Moon,
   ChevronRight,
-  Shield,
-  Key,
-  Users,
   User,
+  ExternalLink,
+  AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useThemeColors } from "../../../hooks/useThemeColors";
-import type { DemoAccountRole } from "../../../constants/demoCredentials";
 import Typography from "../../../components/ui/Typography";
 import Button from "../../../components/ui/Button";
 import Container from "../../../components/ui/Container";
-
-const ROLE_ICONS: Record<DemoAccountRole, typeof Shield> = {
-  super_admin: Shield,
-  admin: Key,
-  manager: Users,
-  user: User,
-};
-
-const ROLE_BADGE_TEXT: Record<DemoAccountRole, string> = {
-  super_admin: "FULL ROOT ACCESS",
-  admin: "SYSTEM CONSOLE",
-  manager: "OPERATIONS",
-  user: "STANDARD ACCESS",
-};
 
 export default function LoginPage() {
   const { login, quickLogin, demoAccounts } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { mode, setMode, colors } = useThemeColors();
+  const { mode, colors } = useThemeColors();
 
-  const [email, setEmail] = useState<string>("superadmin@example.com");
+  // Regular user default credentials for instant client access
+  const [email, setEmail] = useState<string>("user@example.com");
   const [password, setPassword] = useState<string>("Password123!");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeHoverRole, setActiveHoverRole] = useState<string | null>(null);
+  const [isHoveredPersona, setIsHoveredPersona] = useState<boolean>(false);
 
   const destination =
     (location.state as { from?: { pathname?: string } })?.from?.pathname || "/test";
+
+  // Filter demo accounts strictly for regular user role
+  const clientAccounts = demoAccounts.filter(
+    (acc) =>
+      acc.roles.includes("user") &&
+      !acc.roles.some((r) => ["super_admin", "admin", "manager"].includes(r))
+  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -68,24 +60,24 @@ export default function LoginPage() {
       navigate(destination, { replace: true });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Invalid login credentials.",
+        err instanceof Error ? err.message : "Invalid login credentials."
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleQuickLogin = async (roleOrEmail: string) => {
+  const handleQuickLogin = async (identifier: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      await quickLogin(roleOrEmail);
+      await quickLogin(identifier);
       navigate(destination, { replace: true });
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to authenticate demo account.",
+          : "Failed to authenticate client demo account."
       );
     } finally {
       setIsLoading(false);
@@ -95,49 +87,20 @@ export default function LoginPage() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "relative",
-        p: { xs: 2, sm: 3 },
       }}
     >
-      {/* Top right theme toggle */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          zIndex: 10,
-        }}
-      >
-        <IconButton
-          size="sm"
-          variant="outlined"
-          color="neutral"
-          onClick={() => setMode(mode === "dark" ? "light" : "dark")}
-          title="Toggle color mode"
-          sx={{
-            borderRadius: "8px",
-            border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.1))",
-          }}
-        >
-          {mode === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-        </IconButton>
-      </Box>
-
-      {/* Main Login Card using local Container */}
       <Container
         elevation={2}
-        radius="14px"
-        padding="clamp(1.75rem, 3.5vw, 2.75rem)"
+        radius="16px"
+        padding="clamp(1.75rem, 4vw, 2.75rem)"
         style={{
-          maxWidth: "520px",
+          maxWidth: "480px",
           width: "100%",
-          zIndex: 1,
-          backgroundColor:
-            mode === "dark" ? "#11131a" : "#ffffff",
+          backgroundColor: mode === "dark" ? "#11131a" : "#ffffff",
           border:
             mode === "dark"
               ? "1px solid rgba(255, 255, 255, 0.09)"
@@ -149,45 +112,101 @@ export default function LoginPage() {
         }}
       >
         {/* Brand Header */}
-        <Stack spacing={1.5} sx={{ mb: 3.5, textAlign: "left" }}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Box
-              sx={{
-                width: 42,
-                height: 42,
-                borderRadius: "10px",
-                bgcolor: "text.primary",
-                color: "background.surface",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ShieldCheck size={24} />
-            </Box>
-            <Box>
-              <Typography variant="header" size="xs" bold>
-                RBAC Core
-              </Typography>
-              <Typography
-                variant="caption"
-                size="xs"
-                color="secondary"
+        <Stack spacing={1.5} sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="space-between">
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Box
                 sx={{
-                  fontFamily: "var(--font-code, monospace)",
-                  letterSpacing: "0.06em",
-                  fontSize: "0.72rem",
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  bgcolor: colors.accent,
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 12px rgba(24, 94, 224, 0.25)",
                 }}
               >
-                ENTERPRISE ACCESS ENGINE
-              </Typography>
-            </Box>
+                <UserCheck size={24} />
+              </Box>
+              <Box>
+                <Typography variant="header" size="xs" bold>
+                  Client Portal
+                </Typography>
+                <Typography
+                  variant="caption"
+                  size="xs"
+                  color="secondary"
+                  sx={{
+                    fontFamily: "var(--font-code, monospace)",
+                    letterSpacing: "0.06em",
+                    fontSize: "0.72rem",
+                  }}
+                >
+                  REGULAR USER ACCESS
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Chip
+              size="sm"
+              variant="soft"
+              color="success"
+              sx={{
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                borderRadius: "6px",
+              }}
+            >
+              CLIENT ONLY
+            </Chip>
           </Stack>
 
           <Typography variant="body" size="sm" color="secondary" sx={{ mt: 0.5 }}>
-            Authenticate with system credentials or choose a pre-configured verification identity below.
+            Sign in with your regular user account to access client services and personal dashboard.
           </Typography>
         </Stack>
+
+        {/* Portal Notice Banner */}
+        <Box
+          sx={{
+            mb: 2.5,
+            p: 1.5,
+            borderRadius: "10px",
+            bgcolor: mode === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+            border:
+              mode === "dark"
+                ? "1px solid rgba(255, 255, 255, 0.06)"
+                : "1px solid rgba(0, 0, 0, 0.06)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.25,
+          }}
+        >
+          <AlertCircle size={17} style={{ color: colors.accent, flexShrink: 0, marginTop: 2 }} />
+          <Box>
+            <Typography variant="body" size="xs" bold>
+              Regular Users Only
+            </Typography>
+            <Typography variant="caption" size="xs" color="secondary">
+              Admin, Manager & Super Admin roles must authenticate via the{" "}
+              <Link
+                href="http://localhost:5173/login"
+                sx={{
+                  color: colors.accent,
+                  fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.25,
+                }}
+              >
+                Admin Portal <ExternalLink size={11} />
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
 
         {error && (
           <Alert
@@ -217,14 +236,14 @@ export default function LoginPage() {
                   color: "text.secondary",
                 }}
               >
-                Account Email
+                User Email
               </FormLabel>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 startDecorator={<Mail size={16} />}
-                placeholder="identity@example.com"
+                placeholder="user@example.com"
                 sx={{
                   borderRadius: "8px",
                   py: 1.1,
@@ -232,7 +251,7 @@ export default function LoginPage() {
                   bgcolor: "background.surface",
                   border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.12))",
                   "&:focus-within": {
-                    borderColor: "var(--color-primary, #185ee0)",
+                    borderColor: colors.accent,
                   },
                 }}
               />
@@ -248,14 +267,14 @@ export default function LoginPage() {
                   color: "text.secondary",
                 }}
               >
-                Access Password
+                Password
               </FormLabel>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 startDecorator={<Lock size={16} />}
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 sx={{
                   borderRadius: "8px",
                   py: 1.1,
@@ -263,7 +282,7 @@ export default function LoginPage() {
                   bgcolor: "background.surface",
                   border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.12))",
                   "&:focus-within": {
-                    borderColor: "var(--color-primary, #185ee0)",
+                    borderColor: colors.accent,
                   },
                 }}
               />
@@ -284,12 +303,12 @@ export default function LoginPage() {
                 letterSpacing: "0.02em",
               }}
             >
-              {isLoading ? "Authenticating Identity..." : "Authorize & Sign In"}
+              {isLoading ? "Signing in..." : "Sign In to Client Portal"}
             </Button>
           </Stack>
         </form>
 
-        <Divider sx={{ my: 3.5 }}>
+        <Divider sx={{ my: 3 }}>
           <Typography
             variant="caption"
             size="xs"
@@ -302,66 +321,66 @@ export default function LoginPage() {
               px: 1,
             }}
           >
-            One-Click Persona Logins
+            Sample Regular User Persona
           </Typography>
         </Divider>
 
-        {/* Interactive Persona Cards - Monochromatic with crisp primary hover */}
+        {/* Regular User One-Click Persona */}
         <Stack spacing={1.25}>
-          {demoAccounts.map((account) => {
-            const primaryRole = (account.roles[0] || "user") as DemoAccountRole;
-            const Icon = ROLE_ICONS[primaryRole] || ROLE_ICONS.user;
-            const badgeText = ROLE_BADGE_TEXT[primaryRole] || `${account.permissions.length} PERMS`;
-            const isHovered = activeHoverRole === account.email;
-
-            return (
+          {clientAccounts.length > 0 ? (
+            clientAccounts.map((account) => (
               <Box
                 key={account.email}
-                onMouseEnter={() => setActiveHoverRole(account.email)}
-                onMouseLeave={() => setActiveHoverRole(null)}
+                onMouseEnter={() => setIsHoveredPersona(true)}
+                onMouseLeave={() => setIsHoveredPersona(false)}
                 onClick={() => !isLoading && handleQuickLogin(account.email)}
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   p: "0.85rem 1.15rem",
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   cursor: isLoading ? "default" : "pointer",
                   bgcolor:
                     mode === "dark"
-                      ? isHovered
+                      ? isHoveredPersona
                         ? "rgba(255, 255, 255, 0.05)"
                         : "rgba(255, 255, 255, 0.02)"
-                      : isHovered
+                      : isHoveredPersona
                         ? "rgba(0, 0, 0, 0.04)"
                         : "rgba(0, 0, 0, 0.015)",
-                  border: isHovered
+                  border: isHoveredPersona
                     ? `1px solid ${colors.accent}`
                     : `1px solid ${colors.cardBorder}`,
                   transition: "all 0.18s ease-in-out",
-                  transform: isHovered ? "translateX(3px)" : "none",
+                  transform: isHoveredPersona ? "translateY(-1px)" : "none",
                 }}
               >
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Box
                     sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "6px",
+                      width: 36,
+                      height: 36,
+                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      bgcolor: isHovered ? colors.accent : "neutral.softBg",
-                      color: isHovered ? "#ffffff" : "text.secondary",
+                      bgcolor: isHoveredPersona ? colors.accent : "neutral.softBg",
+                      color: isHoveredPersona ? "#ffffff" : "text.secondary",
                       transition: "all 0.18s ease",
                     }}
                   >
-                    <Icon size={16} />
+                    <User size={18} />
                   </Box>
                   <Box>
-                    <Typography variant="body" size="xs" bold>
-                      {account.title}
-                    </Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Typography variant="body" size="xs" bold>
+                        {account.first_name} {account.last_name}
+                      </Typography>
+                      <Chip size="sm" variant="soft" color="neutral" sx={{ fontSize: "0.65rem", py: 0 }}>
+                        USER
+                      </Chip>
+                    </Stack>
                     <Typography
                       variant="caption"
                       size="xs"
@@ -378,32 +397,59 @@ export default function LoginPage() {
                 </Stack>
 
                 <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    size="xs"
-                    color="secondary"
-                    sx={{
-                      fontFamily: "var(--font-code, monospace)",
-                      fontSize: "0.68rem",
-                      letterSpacing: "0.05em",
-                      opacity: isHovered ? 1 : 0.7,
-                      display: { xs: "none", sm: "block" },
-                    }}
-                  >
-                    {badgeText}
-                  </Typography>
+                  <Sparkles size={14} style={{ color: colors.accent, opacity: isHoveredPersona ? 1 : 0.5 }} />
                   <ChevronRight
                     size={16}
                     style={{
-                      color: isHovered ? "var(--color-primary, #185ee0)" : "gray",
-                      transform: isHovered ? "translateX(2px)" : "none",
+                      color: isHoveredPersona ? colors.accent : "gray",
+                      transform: isHoveredPersona ? "translateX(2px)" : "none",
                       transition: "all 0.18s ease",
                     }}
                   />
                 </Stack>
               </Box>
-            );
-          })}
+            ))
+          ) : (
+            // Fallback user card if demo accounts are loading
+            <Box
+              onClick={() => !isLoading && handleQuickLogin("user@example.com")}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                p: "0.85rem 1.15rem",
+                borderRadius: "10px",
+                cursor: "pointer",
+                border: `1px solid ${colors.cardBorder}`,
+              }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: "neutral.softBg",
+                    color: "text.secondary",
+                  }}
+                >
+                  <User size={18} />
+                </Box>
+                <Box>
+                  <Typography variant="body" size="xs" bold>
+                    Elena Rostova
+                  </Typography>
+                  <Typography variant="caption" size="xs" color="secondary">
+                    user@example.com
+                  </Typography>
+                </Box>
+              </Stack>
+              <ChevronRight size={16} />
+            </Box>
+          )}
         </Stack>
       </Container>
     </Box>

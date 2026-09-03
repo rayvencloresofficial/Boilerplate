@@ -6,18 +6,22 @@
     "admin/frontend",
     "client/backend",
     "client/frontend",
-    "database"
+    "database",
+    "services/auth-service"
   ],
   "scripts": {
-    "start": "concurrently -n \"admin-backend,admin-frontend,client-backend,client-frontend\" -c \"blue,cyan,green,yellow\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
-    "dev": "concurrently -n \"admin-backend,admin-frontend,client-backend,client-frontend\" -c \"blue,cyan,green,yellow\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
+    "start": "concurrently -n \"auth-service,admin-backend,admin-frontend,client-backend,client-frontend\" -c \"magenta,blue,cyan,green,yellow\" \"npm run dev -w auth-service\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
+    "dev": "concurrently -n \"auth-service,admin-backend,admin-frontend,client-backend,client-frontend\" -c \"magenta,blue,cyan,green,yellow\" \"npm run dev -w auth-service\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
     "start:admin": "concurrently -n \"admin-backend,admin-frontend\" -c \"blue,cyan\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\"",
     "dev:admin": "concurrently -n \"admin-backend,admin-frontend\" -c \"blue,cyan\" \"npm run dev -w admin-backend\" \"npm run dev -w admin-frontend\"",
     "start:client": "concurrently -n \"client-backend,client-frontend\" -c \"green,yellow\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
     "dev:client": "concurrently -n \"client-backend,client-frontend\" -c \"green,yellow\" \"npm run dev -w client-backend\" \"npm run dev -w client-frontend\"",
-    "build": "npm run build -w admin-backend && npm run build -w admin-frontend && npm run build -w client-backend && npm run build -w client-frontend",
+    "start:auth": "npm run dev -w auth-service",
+    "dev:auth": "npm run dev -w auth-service",
+    "build": "npm run build -w auth-service && npm run build -w admin-backend && npm run build -w admin-frontend && npm run build -w client-backend && npm run build -w client-frontend",
     "build:admin": "npm run build -w admin-backend && npm run build -w admin-frontend",
     "build:client": "npm run build -w client-backend && npm run build -w client-frontend",
+    "build:auth": "npm run build -w auth-service",
     "db:migrate": "npm run migrate -w database",
     "db:seed": "npm run seed -w database",
     "db:reset": "npm run reset -w database"

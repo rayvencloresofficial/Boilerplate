@@ -7,7 +7,6 @@ import {
   FlaskConical,
   ArrowRight,
   Lock,
-  FileText,
 } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useThemeColors } from "../../../hooks/useThemeColors";
@@ -64,7 +63,11 @@ export default function Dashboard() {
               </Typography>
             </Stack>
             <Typography variant="body" size="xs" color="secondary">
-              Logged in as <b>{user?.first_name} {user?.last_name}</b> ({user?.email}) &bull; Assigned Role:{" "}
+              Logged in as{" "}
+              <b>
+                {user?.first_name} {user?.last_name}
+              </b>{" "}
+              ({user?.email}) &bull; Assigned Role:{" "}
               <span
                 style={{
                   fontFamily: "var(--font-code, monospace)",
@@ -370,56 +373,7 @@ export default function Dashboard() {
 
       {/* Quick Navigation Cards */}
       <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
-          <Container
-            elevation={0}
-            flex={1}
-            padding="1.5rem"
-            hover={true}
-            hoverEffect="lift"
-            onClick={() => navigate("/test/documents")}
-            style={{
-              cursor: "pointer",
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.cardBorder}`,
-            }}
-          >
-            <Stack
-              direction="row"
-              spacing={1.5}
-              alignItems="center"
-              sx={{ mb: 1 }}
-            >
-              <FileText size={20} />
-              <Typography variant="body" size="sm" bold>
-                Documents Repository
-              </Typography>
-            </Stack>
-            <Typography
-              variant="caption"
-              size="xs"
-              color="secondary"
-              sx={{ mb: 2, display: "block" }}
-            >
-              Enterprise documentation hub with fine-grained RBAC permission controls.
-            </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography
-                variant="caption"
-                size="xs"
-                sx={{
-                  fontFamily: "var(--font-code, monospace)",
-                  fontWeight: 600,
-                  color: colors.accent,
-                }}
-              >
-                Browse Documents &rarr;
-              </Typography>
-            </Stack>
-          </Container>
-        </Grid>
-
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={6}>
           <Container
             elevation={0}
             flex={1}
@@ -469,7 +423,7 @@ export default function Dashboard() {
           </Container>
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid xs={12} md={6}>
           <Container
             elevation={0}
             flex={1}

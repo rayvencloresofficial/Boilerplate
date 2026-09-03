@@ -7,6 +7,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
+  AUTH_SERVICE_URL: z.string().default('http://localhost:5000/api/v1'),
   DATABASE_URL: z
     .string()
     .default('postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db'),

@@ -8,20 +8,20 @@ import {
   Input,
   Alert,
   Divider,
-  IconButton,
+  Link,
+  Chip,
 } from "@mui/joy";
 import {
   ShieldCheck,
   ArrowRight,
   Lock,
   Mail,
-  Sun,
-  Moon,
   ChevronRight,
   Shield,
   Key,
   Users,
-  User,
+  ExternalLink,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useThemeColors } from "../../../hooks/useThemeColors";
@@ -30,25 +30,23 @@ import Typography from "../../../components/ui/Typography";
 import Button from "../../../components/ui/Button";
 import Container from "../../../components/ui/Container";
 
-const ROLE_ICONS: Record<DemoAccountRole, typeof Shield> = {
+const ROLE_ICONS: Record<string, typeof Shield> = {
   super_admin: Shield,
   admin: Key,
   manager: Users,
-  user: User,
 };
 
-const ROLE_BADGE_TEXT: Record<DemoAccountRole, string> = {
+const ROLE_BADGE_TEXT: Record<string, string> = {
   super_admin: "FULL ROOT ACCESS",
   admin: "SYSTEM CONSOLE",
   manager: "OPERATIONS",
-  user: "STANDARD ACCESS",
 };
 
 export default function LoginPage() {
   const { login, quickLogin, demoAccounts } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { mode, setMode, colors } = useThemeColors();
+  const { mode, colors } = useThemeColors();
 
   const [email, setEmail] = useState<string>("superadmin@example.com");
   const [password, setPassword] = useState<string>("Password123!");
@@ -59,6 +57,11 @@ export default function LoginPage() {
   const destination =
     (location.state as { from?: { pathname?: string } })?.from?.pathname || "/test";
 
+  // Filter demo accounts for all administrative and custom staff roles
+  const adminAccounts = demoAccounts.filter((acc) =>
+    acc.roles.some((r) => r !== "user")
+  );
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -68,7 +71,7 @@ export default function LoginPage() {
       navigate(destination, { replace: true });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Invalid login credentials.",
+        err instanceof Error ? err.message : "Invalid administrative credentials."
       );
     } finally {
       setIsLoading(false);
@@ -85,7 +88,7 @@ export default function LoginPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to authenticate demo account.",
+          : "Failed to authenticate administrative persona."
       );
     } finally {
       setIsLoading(false);
@@ -95,49 +98,20 @@ export default function LoginPage() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "relative",
-        p: { xs: 2, sm: 3 },
       }}
     >
-      {/* Top right theme toggle */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          zIndex: 10,
-        }}
-      >
-        <IconButton
-          size="sm"
-          variant="outlined"
-          color="neutral"
-          onClick={() => setMode(mode === "dark" ? "light" : "dark")}
-          title="Toggle color mode"
-          sx={{
-            borderRadius: "8px",
-            border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.1))",
-          }}
-        >
-          {mode === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-        </IconButton>
-      </Box>
-
-      {/* Main Login Card using local Container */}
       <Container
         elevation={2}
-        radius="14px"
-        padding="clamp(1.75rem, 3.5vw, 2.75rem)"
+        radius="16px"
+        padding="clamp(1.75rem, 4vw, 2.75rem)"
         style={{
           maxWidth: "520px",
           width: "100%",
-          zIndex: 1,
-          backgroundColor:
-            mode === "dark" ? "#11131a" : "#ffffff",
+          backgroundColor: mode === "dark" ? "#11131a" : "#ffffff",
           border:
             mode === "dark"
               ? "1px solid rgba(255, 255, 255, 0.09)"
@@ -149,45 +123,101 @@ export default function LoginPage() {
         }}
       >
         {/* Brand Header */}
-        <Stack spacing={1.5} sx={{ mb: 3.5, textAlign: "left" }}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Box
-              sx={{
-                width: 42,
-                height: 42,
-                borderRadius: "10px",
-                bgcolor: "text.primary",
-                color: "background.surface",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ShieldCheck size={24} />
-            </Box>
-            <Box>
-              <Typography variant="header" size="xs" bold>
-                RBAC Core
-              </Typography>
-              <Typography
-                variant="caption"
-                size="xs"
-                color="secondary"
+        <Stack spacing={1.5} sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="space-between">
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Box
                 sx={{
-                  fontFamily: "var(--font-code, monospace)",
-                  letterSpacing: "0.06em",
-                  fontSize: "0.72rem",
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  bgcolor: "text.primary",
+                  color: "background.surface",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                 }}
               >
-                ENTERPRISE ACCESS ENGINE
-              </Typography>
-            </Box>
+                <ShieldCheck size={24} />
+              </Box>
+              <Box>
+                <Typography variant="header" size="xs" bold>
+                  Admin Console
+                </Typography>
+                <Typography
+                  variant="caption"
+                  size="xs"
+                  color="secondary"
+                  sx={{
+                    fontFamily: "var(--font-code, monospace)",
+                    letterSpacing: "0.06em",
+                    fontSize: "0.72rem",
+                  }}
+                >
+                  ADMINISTRATIVE ROLES ONLY
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Chip
+              size="sm"
+              variant="soft"
+              color="danger"
+              sx={{
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+                borderRadius: "6px",
+              }}
+            >
+              ADMIN PRIVILEGES
+            </Chip>
           </Stack>
 
           <Typography variant="body" size="sm" color="secondary" sx={{ mt: 0.5 }}>
-            Authenticate with system credentials or choose a pre-configured verification identity below.
+            Restricted to administrative staff, managers, and authorized custom roles.
           </Typography>
         </Stack>
+
+        {/* Regular User Callout Banner */}
+        <Box
+          sx={{
+            mb: 2.5,
+            p: 1.5,
+            borderRadius: "10px",
+            bgcolor: mode === "dark" ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+            border:
+              mode === "dark"
+                ? "1px solid rgba(255, 255, 255, 0.06)"
+                : "1px solid rgba(0, 0, 0, 0.06)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.25,
+          }}
+        >
+          <AlertTriangle size={17} style={{ color: "#f59e0b", flexShrink: 0, marginTop: 2 }} />
+          <Box>
+            <Typography variant="body" size="xs" bold>
+              Are you a regular user?
+            </Typography>
+            <Typography variant="caption" size="xs" color="secondary">
+              Standard customer/user accounts cannot log in here. Please navigate to the{" "}
+              <Link
+                href="http://localhost:5174/login"
+                sx={{
+                  color: colors.accent,
+                  fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.25,
+                }}
+              >
+                Client Portal <ExternalLink size={11} />
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
 
         {error && (
           <Alert
@@ -217,14 +247,14 @@ export default function LoginPage() {
                   color: "text.secondary",
                 }}
               >
-                Account Email
+                Staff Account Email
               </FormLabel>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 startDecorator={<Mail size={16} />}
-                placeholder="identity@example.com"
+                placeholder="staff@example.com"
                 sx={{
                   borderRadius: "8px",
                   py: 1.1,
@@ -232,7 +262,7 @@ export default function LoginPage() {
                   bgcolor: "background.surface",
                   border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.12))",
                   "&:focus-within": {
-                    borderColor: "var(--color-primary, #185ee0)",
+                    borderColor: colors.accent,
                   },
                 }}
               />
@@ -263,7 +293,7 @@ export default function LoginPage() {
                   bgcolor: "background.surface",
                   border: "1px solid var(--joy-palette-neutral-outlinedBorder, rgba(0,0,0,0.12))",
                   "&:focus-within": {
-                    borderColor: "var(--color-primary, #185ee0)",
+                    borderColor: colors.accent,
                   },
                 }}
               />
@@ -284,12 +314,12 @@ export default function LoginPage() {
                 letterSpacing: "0.02em",
               }}
             >
-              {isLoading ? "Authenticating Identity..." : "Authorize & Sign In"}
+              {isLoading ? "Authenticating Staff..." : "Authorize Admin Sign In"}
             </Button>
           </Stack>
         </form>
 
-        <Divider sx={{ my: 3.5 }}>
+        <Divider sx={{ my: 3 }}>
           <Typography
             variant="caption"
             size="xs"
@@ -302,16 +332,20 @@ export default function LoginPage() {
               px: 1,
             }}
           >
-            One-Click Persona Logins
+            Administrative Personas
           </Typography>
         </Divider>
 
-        {/* Interactive Persona Cards - Monochromatic with crisp primary hover */}
+        {/* Admin Personas */}
         <Stack spacing={1.25}>
-          {demoAccounts.map((account) => {
-            const primaryRole = (account.roles[0] || "user") as DemoAccountRole;
-            const Icon = ROLE_ICONS[primaryRole] || ROLE_ICONS.user;
-            const badgeText = ROLE_BADGE_TEXT[primaryRole] || `${account.permissions.length} PERMS`;
+          {adminAccounts.map((account) => {
+            const primaryRole = (account.roles.find((r) => r !== "user") ||
+              account.roles[0] ||
+              "admin") as DemoAccountRole;
+            const Icon = ROLE_ICONS[primaryRole] || ShieldCheck;
+            const badgeText =
+              ROLE_BADGE_TEXT[primaryRole] ||
+              primaryRole.replace(/_/g, " ").toUpperCase();
             const isHovered = activeHoverRole === account.email;
 
             return (
@@ -325,7 +359,7 @@ export default function LoginPage() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   p: "0.85rem 1.15rem",
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   cursor: isLoading ? "default" : "pointer",
                   bgcolor:
                     mode === "dark"
@@ -339,15 +373,15 @@ export default function LoginPage() {
                     ? `1px solid ${colors.accent}`
                     : `1px solid ${colors.cardBorder}`,
                   transition: "all 0.18s ease-in-out",
-                  transform: isHovered ? "translateX(3px)" : "none",
+                  transform: isHovered ? "translateY(-1px)" : "none",
                 }}
               >
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Box
                     sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "6px",
+                      width: 34,
+                      height: 34,
+                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -395,7 +429,7 @@ export default function LoginPage() {
                   <ChevronRight
                     size={16}
                     style={{
-                      color: isHovered ? "var(--color-primary, #185ee0)" : "gray",
+                      color: isHovered ? colors.accent : "gray",
                       transform: isHovered ? "translateX(2px)" : "none",
                       transition: "all 0.18s ease",
                     }}

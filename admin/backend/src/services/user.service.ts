@@ -1,7 +1,11 @@
+import bcrypt from 'bcryptjs';
 import { ConflictError, NotFoundError } from '../errors/AppError.js';
 import * as userRepository from '../repositories/user.repository.js';
-import { hashPassword } from './auth.service.js';
 import type { UserSummary } from '../repositories/user.repository.js';
+
+const hashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, 10);
+};
 
 export const listUsers = async (limit = 50, offset = 0): Promise<UserSummary[]> => {
   return await userRepository.findAll(limit, offset);
