@@ -6,6 +6,7 @@ import App from "@/App";
 import "@/index.css";
 import { initScreenScaleAutoFix } from "@/utils/Scale";
 import { ThemeProvider } from "@/context/ThemeProvider";
+import { TypographyProvider } from "@/context/TypographyProvider";
 
 // Initialize global screen scale auto-normalization for high-DPI (e.g. 125%, 150%) Windows displays
 initScreenScaleAutoFix();
@@ -74,7 +75,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <CssVarsProvider defaultMode="light">
       <CssBaseline />
       <ThemeProvider>
-        <App />
+        <TypographyProvider>
+          <App />
+        </TypographyProvider>
       </ThemeProvider>
     </CssVarsProvider>
   </React.StrictMode>,

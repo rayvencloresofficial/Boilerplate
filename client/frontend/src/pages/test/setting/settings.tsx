@@ -38,6 +38,7 @@ import {
   type Setting,
 } from "../../../services/settings.api";
 import { ThemeColorSettings } from "../../../components/theme/ThemeColorSettings";
+import { TypographyFontSettings } from "../../../components/theme/TypographyFontSettings";
 
 export default function Settings() {
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -371,9 +372,14 @@ export default function Settings() {
 
         {/* Theme Color Settings & Triad Presets */}
         {(activeCategory === "appearance" || activeCategory === "all") && (
-          <ThemeColorSettings
-            onSettingSaved={() => setRefreshTrigger((prev) => prev + 1)}
-          />
+          <>
+            <ThemeColorSettings
+              onSettingSaved={() => setRefreshTrigger((prev) => prev + 1)}
+            />
+            <TypographyFontSettings
+              onSettingSaved={() => setRefreshTrigger((prev) => prev + 1)}
+            />
+          </>
         )}
 
         {isLoading ? (

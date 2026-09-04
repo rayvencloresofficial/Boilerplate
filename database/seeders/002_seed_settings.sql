@@ -12,7 +12,9 @@ INSERT INTO settings (id, key, value, category, description, is_public) VALUES
     ('50000000-0000-0000-0000-000000000006', 'appearance.brand_color', '"#185ee0"'::jsonb, 'appearance', 'Global primary accent color', TRUE),
     ('50000000-0000-0000-0000-000000000007', 'appearance.default_theme', '"dark"'::jsonb, 'appearance', 'Default color scheme for new visitors', TRUE),
     ('50000000-0000-0000-0000-000000000008', 'system.maintenance_mode', 'false'::jsonb, 'system', 'Flag to put application into maintenance mode', TRUE),
-    ('50000000-0000-0000-0000-000000000009', 'system.audit_logging', 'true'::jsonb, 'system', 'Persist telemetry and RFC 7807 access audit logs', FALSE)
+    ('50000000-0000-0000-0000-000000000009', 'system.audit_logging', 'true'::jsonb, 'system', 'Persist telemetry and RFC 7807 access audit logs', FALSE),
+    ('50000000-0000-0000-0000-000000000010', 'appearance.font_family', '"Plus Jakarta Sans"'::jsonb, 'appearance', 'Global primary UI typography font family', TRUE),
+    ('50000000-0000-0000-0000-000000000011', 'appearance.heading_font_family', '"Plus Jakarta Sans"'::jsonb, 'appearance', 'Global heading and title typography font family', TRUE)
 ON CONFLICT (key) DO UPDATE SET
     value = EXCLUDED.value,
     category = EXCLUDED.category,

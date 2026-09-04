@@ -4,7 +4,12 @@
   --full-dvh: 100dvh;
   --full-svh: 100svh;
   --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: var(--font-primary);
   --font-code: 'JetBrains Mono', monospace;
+  --joy-fontFamily-body: var(--font-primary);
+  --joy-fontFamily-display: var(--font-heading);
+  --joy-fontFamily-code: var(--font-code);
+  --app-font-scale: 1;
   --color-dominant: #f8fafc;
   --color-background: var(--color-dominant);
   --color-secondary: #334155;

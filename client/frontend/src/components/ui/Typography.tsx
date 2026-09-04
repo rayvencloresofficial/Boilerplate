@@ -168,8 +168,11 @@ const Typography = ({
     black: "#000000",
   };
 
+  const isHeading = variant === "title" || variant === "header";
   const customStyles: CSSProperties = {
-    fontFamily: "'Poppins', sans-serif",
+    fontFamily: isHeading
+      ? "var(--font-heading, var(--font-primary, 'Plus Jakarta Sans', sans-serif))"
+      : "var(--font-primary, 'Plus Jakarta Sans', sans-serif)",
     textAlign: align,
     color: colorMap[color] || colors.textPrimary,
     lineHeight: variant === "title" ? 1.2 : variant === "header" ? 1.3 : 1.5,
