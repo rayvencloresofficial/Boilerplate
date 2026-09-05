@@ -23,4 +23,6 @@ export const ENV = {
   JWT_REFRESH_SECRET:
     process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-replace-in-prod',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  ENCRYPTION_KEY:
+    process.env.ENCRYPTION_KEY || 'default-super-secret-encryption-key-32-bytes!',
 } as const;

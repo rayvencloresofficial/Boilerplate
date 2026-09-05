@@ -46,8 +46,8 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response, ne
       res.status(401).json({ success: false, message: 'Unauthenticated.' });
       return;
     }
-    const { first_name, last_name } = req.body;
-    const updated = await userService.updateProfile(userId, { first_name, last_name });
+    const { first_name, last_name, phone_number } = req.body;
+    const updated = await userService.updateProfile(userId, { first_name, last_name, phone_number });
     const response: ApiResponse<typeof updated> = {
       success: true,
       data: updated,
@@ -77,9 +77,9 @@ export const getUserById = async (req: AuthenticatedRequest, res: Response, next
 
 export const createUser = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email, password, first_name, last_name, is_active, role_ids } = req.body;
+    const { email, password, first_name, last_name, is_active, phone_number, role_ids } = req.body;
     const created = await userService.createUser(
-      { email, password, first_name, last_name, is_active },
+      { email, password, first_name, last_name, is_active, phone_number },
       role_ids
     );
 
@@ -98,11 +98,11 @@ export const createUser = async (req: AuthenticatedRequest, res: Response, next:
 export const updateUser = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params as { id: string };
-    const { email, password, first_name, last_name, is_active, role_ids } = req.body;
+    const { email, password, first_name, last_name, is_active, phone_number, role_ids } = req.body;
 
     const updated = await userService.updateUser(
       id,
-      { email, password, first_name, last_name, is_active },
+      { email, password, first_name, last_name, is_active, phone_number },
       role_ids
     );
 

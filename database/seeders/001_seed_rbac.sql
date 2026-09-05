@@ -59,16 +59,18 @@ ON CONFLICT DO NOTHING;
 
 -- 4. Seed Demo Users (Password: Password123!)
 -- Hash generated via bcrypt: $2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am
-INSERT INTO users (id, email, password_hash, first_name, last_name, is_active) VALUES
-    ('a0000000-0000-0000-0000-000000000001', 'superadmin@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Sarah', 'Vance', TRUE),
-    ('a0000000-0000-0000-0000-000000000002', 'admin@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Alex', 'Rivera', TRUE),
-    ('a0000000-0000-0000-0000-000000000003', 'manager@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Marcus', 'Chen', TRUE),
-    ('a0000000-0000-0000-0000-000000000004', 'user@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Elena', 'Rostova', TRUE)
+-- Phone numbers encrypted via AES-256-GCM dynamically at seed time
+INSERT INTO users (id, email, password_hash, first_name, last_name, is_active, phone_number) VALUES
+    ('a0000000-0000-0000-0000-000000000001', 'superadmin@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Sarah', 'Vance', TRUE, '{{ENCRYPT:+1-555-019-2834}}'),
+    ('a0000000-0000-0000-0000-000000000002', 'admin@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Alex', 'Rivera', TRUE, '{{ENCRYPT:+1-555-019-5847}}'),
+    ('a0000000-0000-0000-0000-000000000003', 'manager@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Marcus', 'Chen', TRUE, '{{ENCRYPT:+1-555-019-9182}}'),
+    ('a0000000-0000-0000-0000-000000000004', 'user@example.com', '$2b$10$03tdEs/QHIl1bgMbsxbfmOS2HBG0nIxU2AvooyHswsvHylfWAQ0am', 'Elena', 'Rostova', TRUE, '{{ENCRYPT:+1-555-019-3341}}')
 ON CONFLICT (id) DO UPDATE SET
     password_hash = EXCLUDED.password_hash,
     first_name = EXCLUDED.first_name,
     last_name = EXCLUDED.last_name,
-    is_active = EXCLUDED.is_active;
+    is_active = EXCLUDED.is_active,
+    phone_number = EXCLUDED.phone_number;
 
 -- 5. Assign Roles to Demo Users
 INSERT INTO user_roles (user_id, role_id) VALUES

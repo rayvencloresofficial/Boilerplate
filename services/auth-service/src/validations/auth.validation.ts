@@ -16,6 +16,7 @@ export const registerSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one numeric digit.'),
   first_name: z.string().min(1, 'First name is required.').max(100).trim(),
   last_name: z.string().min(1, 'Last name is required.').max(100).trim(),
+  phone_number: z.string().trim().max(50).optional(),
 });
 
 export const refreshSchema = z.object({

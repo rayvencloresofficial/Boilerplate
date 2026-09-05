@@ -1,4 +1,4 @@
-# Enterprise Full-Stack Boilerplate Manual (BFF Architecture)
+# Full-Stack Boilerplate Manual (BFF Architecture)
 
 A comprehensive developer, operator, and architecture manual for building, extending, and scaling applications with this Backend-For-Frontend (BFF) monorepo.
 

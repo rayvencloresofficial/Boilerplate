@@ -9,6 +9,7 @@ export const createUserSchema = z.object({
   first_name: z.string().trim().min(1, 'First name is required.').max(100),
   last_name: z.string().trim().min(1, 'Last name is required.').max(100),
   is_active: z.boolean().optional(),
+  phone_number: z.string().trim().max(50).optional().nullable(),
   role_ids: z.array(z.string().uuid('Each role_id must be a valid UUID.')).optional(),
 });
 
@@ -22,12 +23,14 @@ export const updateUserSchema = z.object({
   first_name: z.string().trim().min(1).max(100).optional(),
   last_name: z.string().trim().min(1).max(100).optional(),
   is_active: z.boolean().optional(),
+  phone_number: z.string().trim().max(50).optional().nullable(),
   role_ids: z.array(z.string().uuid('Each role_id must be a valid UUID.')).optional(),
 });
 
 export const updateProfileSchema = z.object({
   first_name: z.string().trim().min(1).max(100).optional(),
   last_name: z.string().trim().min(1).max(100).optional(),
+  phone_number: z.string().trim().max(50).optional().nullable(),
 });
 
 export const userIdParamSchema = z.object({

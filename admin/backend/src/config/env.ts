@@ -25,6 +25,10 @@ const envSchema = z.object({
     .min(16)
     .default('super-secret-refresh-jwt-key-for-development-change-in-prod-67890'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+  ENCRYPTION_KEY: z
+    .string()
+    .min(16, 'ENCRYPTION_KEY must be at least 16 characters.')
+    .default('c0ffee1234567890abcdef1234567890abcdef1234567890abcdef1234567890'),
 });
 
 const parsed = envSchema.safeParse(process.env);

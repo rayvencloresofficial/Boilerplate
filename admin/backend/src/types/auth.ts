@@ -6,6 +6,7 @@ export interface AuthUser {
   first_name: string;
   last_name: string;
   is_active: boolean;
+  phone_number?: string | null;
   roles: string[];
   permissions: string[];
 }
@@ -16,6 +17,7 @@ export interface DemoAccountItem {
   first_name: string;
   last_name: string;
   is_active: boolean;
+  phone_number?: string | null;
   roles: string[];
   permissions: string[];
   title: string;

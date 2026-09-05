@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS settings (
     category VARCHAR(50) NOT NULL DEFAULT 'general',
     description TEXT,
     is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    is_encrypted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -18,3 +19,5 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_settings_key ON settings (key);
 CREATE INDEX IF NOT EXISTS idx_settings_category ON settings (category);
 CREATE INDEX IF NOT EXISTS idx_settings_is_public ON settings (is_public);
+CREATE INDEX IF NOT EXISTS idx_settings_is_encrypted ON settings (is_encrypted);
+

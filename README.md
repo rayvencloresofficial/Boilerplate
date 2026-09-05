@@ -1,4 +1,4 @@
-# Enterprise Full-Stack Monorepo Boilerplate (BFF Architecture)
+# Full-Stack Monorepo Boilerplate (BFF Architecture)
 
 An enterprise-grade, production-ready Full-Stack Monorepo boilerplate architected using the **Backend-For-Frontend (BFF)** pattern. It features dual frontend portals (**Admin Console** and **Client Portal**) powered by **React 19, Joy UI, and Vite**, paired with dedicated **Express + TypeScript + Kysely** BFF gateways, a centralized **Authentication Microservice**, an isolated **PostgreSQL 17 Database Migration Engine**, and a comprehensive **Role-Based Access Control (RBAC)** security system.
 
@@ -37,41 +37,41 @@ The repository is architected as an **npm workspaces monorepo** with strict arch
 │  Admin Frontend (React 19 + Joy UI)      │            │  Client Frontend (React 19 + Joy UI)     │
 │  http://localhost:5173                   │            │  http://localhost:5174                   │
 └────────────────────┬─────────────────────┘            └────────────────────┬─────────────────────┘
-                     │ REST API Requests                                     │ REST API Requests    
-                     ▼                                                       ▼                      
+                     │ REST API Requests                                     │ REST API Requests
+                     ▼                                                       ▼
 ┌──────────────────────────────────────────┐            ┌──────────────────────────────────────────┐
 │          ADMIN BFF (PORT 3000)           │            │         CLIENT BFF (PORT 4000)           │
 │  Express + TypeScript + Kysely           │            │  Express + TypeScript + Kysely           │
 │  http://localhost:3000/api/v1            │            │  http://localhost:4000/api/v1            │
 └──────────┬───────────────────┬───────────┘            └───────────┬──────────────────┬───────────┘
-           │                   │ Auth Delegation                    │                  │            
-           │                   │ (/api/v1/auth/*)                   │ Auth Delegation  │            
-           │                   └───────────────┐    ┌───────────────┘ (/api/v1/auth/*) │            
-           │                                   ▼    ▼                                  │            
-           │                     ┌──────────────────────────────┐                      │            
-           │                     │   AUTH SERVICE (PORT 5000)   │                      │            
-           │                     │  Centralized Authentication  │                      │            
-           │                     │  JWT Tokens & Refresh Rot.   │                      │            
-           │                     │  http://localhost:5000       │                      │            
-           │                     └──────────────┬───────────────┘                      │            
-           │                                    │ User Credentials &                   │            
-           │ Kysely SQL                         │ Session Storage                      │ Kysely SQL 
-           │ Queries                            ▼ Queries                              │ Queries    
-           ▼                                                                           ▼            
+           │                   │ Auth Delegation                    │                  │
+           │                   │ (/api/v1/auth/*)                   │ Auth Delegation  │
+           │                   └───────────────┐    ┌───────────────┘ (/api/v1/auth/*) │
+           │                                   ▼    ▼                                  │
+           │                     ┌──────────────────────────────┐                      │
+           │                     │   AUTH SERVICE (PORT 5000)   │                      │
+           │                     │  Centralized Authentication  │                      │
+           │                     │  JWT Tokens & Refresh Rot.   │                      │
+           │                     │  http://localhost:5000       │                      │
+           │                     └──────────────┬───────────────┘                      │
+           │                                    │ User Credentials &                   │
+           │ Kysely SQL                         │ Session Storage                      │ Kysely SQL
+           │ Queries                            ▼ Queries                              │ Queries
+           ▼                                                                           ▼
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                               POSTGRESQL 17+ DATABASE (PORT 5432)                                │
 │                                         boilerplate_db                                           │
 │  • users               • roles                 • permissions          • user_roles               │
 │  • refresh_tokens      • role_permissions      • settings             • (domain feature tables)  │
 └────────────────────────────────────────────────▲─────────────────────────────────────────────────┘
-                                                 │ DDL Schema Migrations & Seeders                  
-                                                 │ (Atomic Transactions)                            
-                                  ┌──────────────┴───────────────┐                                  
-                                  │  DATABASE ENGINE (database/) │                                  
-                                  │  Standalone Kysely Runner    │                                  
-                                  │  • migrations/*.sql          │                                  
-                                  │  • seeders/*.sql             │                                  
-                                  └──────────────────────────────┘                                  
+                                                 │ DDL Schema Migrations & Seeders
+                                                 │ (Atomic Transactions)
+                                  ┌──────────────┴───────────────┐
+                                  │  DATABASE ENGINE (database/) │
+                                  │  Standalone Kysely Runner    │
+                                  │  • migrations/*.sql          │
+                                  │  • seeders/*.sql             │
+                                  └──────────────────────────────┘
 ```
 
 ---
@@ -94,14 +94,17 @@ Boilerplate/
 ```
 
 ### 1. `admin/` — Back-Office Administration
+
 - **`admin/frontend`**: High-performance single page application built with React 19, Joy UI, and Vite. Contains back-office workflows, full user administration, system role configuration, security audit views, and settings controls.
 - **`admin/backend`**: Dedicated Backend-For-Frontend (BFF) running Express and TypeScript. Exposes administrative endpoints (`/api/v1/users`, `/api/v1/roles`, `/api/v1/settings`), delegates credential verification to `auth-service`, and executes type-safe queries via Kysely.
 
 ### 2. `client/` — Consumer / End-User Portal
+
 - **`client/frontend`**: Clean, accessible consumer portal powered by React 19, Joy UI, and Vite. Designed for customer self-service, user personal profiles, and client-facing features.
 - **`client/backend`**: Dedicated Backend-For-Frontend (BFF) running Express and TypeScript. Exposes customer-facing endpoints (`/api/v1/users/me`), enforces client authorization, delegates auth to `auth-service`, and interfaces directly with PostgreSQL.
 
 ### 3. `services/auth-service/` — Centralized Authentication Authority
+
 - Microservice responsible for:
   - User registration, password hashing (bcrypt), and credential verification.
   - Dual-token lifecycle: Access Token issuance (short-lived JWT) and Refresh Token rotation (stored as SHA-256 hashes).
@@ -109,6 +112,7 @@ Boilerplate/
   - Centralized session revocation and token verification endpoints (`/api/v1/auth/verify`).
 
 ### 4. `database/` — Standalone Database Engine
+
 - **Single Source of Truth**: All PostgreSQL DDL schemas (`migrations/`) and data fixtures (`seeders/`) live exclusively here.
 - **Strict Boundary**: Zero migration or seeder scripts inside BFF backends.
 - **Atomic Execution**: All migrations and seeders execute within atomic SQL transactions (`BEGIN` / `COMMIT` / `ROLLBACK`).
@@ -205,6 +209,7 @@ Ensure the following tools are installed on your workstation:
 The monorepo uses isolated environment files for each workspace. Copy the example `.env.example` templates for all 6 workspaces:
 
 #### Windows PowerShell:
+
 ```powershell
 Copy-Item services/auth-service/.env.example services/auth-service/.env
 Copy-Item admin/backend/.env.example admin/backend/.env
@@ -215,6 +220,7 @@ Copy-Item database/.env.example database/.env
 ```
 
 #### macOS / Linux / Git Bash:
+
 ```bash
 cp services/auth-service/.env.example services/auth-service/.env
 cp admin/backend/.env.example admin/backend/.env
@@ -225,6 +231,7 @@ cp database/.env.example database/.env
 ```
 
 #### Windows CMD:
+
 ```cmd
 copy services\auth-service\.env.example services\auth-service\.env
 copy admin\backend\.env.example admin\backend\.env
@@ -236,14 +243,14 @@ copy database\.env.example database\.env
 
 #### Overview of Configuration Values:
 
-| Workspace | Key Variables | Default / Example Value |
-| :--- | :--- | :--- |
-| **`services/auth-service/.env`** | `PORT`<br/>`DATABASE_URL`<br/>`JWT_SECRET`<br/>`JWT_REFRESH_SECRET` | `5000`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db`<br/>`secure-access-secret`<br/>`secure-refresh-secret` |
-| **`admin/backend/.env`** | `PORT`<br/>`CLIENT_URL`<br/>`AUTH_SERVICE_URL`<br/>`DATABASE_URL` | `3000`<br/>`http://localhost:5173`<br/>`http://localhost:5000/api/v1`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` |
-| **`admin/frontend/.env`** | `VITE_API_URL` | `http://localhost:3000/api/v1` |
-| **`client/backend/.env`** | `PORT`<br/>`CLIENT_URL`<br/>`AUTH_SERVICE_URL`<br/>`DATABASE_URL` | `4000`<br/>`http://localhost:5174`<br/>`http://localhost:5000/api/v1`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` |
-| **`client/frontend/.env`** | `VITE_API_URL` | `http://localhost:4000/api/v1` |
-| **`database/.env`** | `DATABASE_URL` | `postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` |
+| Workspace                        | Key Variables                                                       | Default / Example Value                                                                                                                          |
+| :------------------------------- | :------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`services/auth-service/.env`** | `PORT`<br/>`DATABASE_URL`<br/>`JWT_SECRET`<br/>`JWT_REFRESH_SECRET` | `5000`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db`<br/>`secure-access-secret`<br/>`secure-refresh-secret`         |
+| **`admin/backend/.env`**         | `PORT`<br/>`CLIENT_URL`<br/>`AUTH_SERVICE_URL`<br/>`DATABASE_URL`   | `3000`<br/>`http://localhost:5173`<br/>`http://localhost:5000/api/v1`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` |
+| **`admin/frontend/.env`**        | `VITE_API_URL`                                                      | `http://localhost:3000/api/v1`                                                                                                                   |
+| **`client/backend/.env`**        | `PORT`<br/>`CLIENT_URL`<br/>`AUTH_SERVICE_URL`<br/>`DATABASE_URL`   | `4000`<br/>`http://localhost:5174`<br/>`http://localhost:5000/api/v1`<br/>`postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db` |
+| **`client/frontend/.env`**       | `VITE_API_URL`                                                      | `http://localhost:4000/api/v1`                                                                                                                   |
+| **`database/.env`**              | `DATABASE_URL`                                                      | `postgresql://postgres:postgrespassword@localhost:5432/boilerplate_db`                                                                           |
 
 ---
 
@@ -277,6 +284,7 @@ npm run db:seed
 
 > [!TIP]
 > **Full Database Reset**: If you need to drop all tables, re-run all migrations from scratch, and re-seed all default data:
+>
 > ```bash
 > npm run db:reset
 > ```
@@ -323,14 +331,14 @@ If you prefer running a specific portal during development:
 
 ## Service Topology & Port Matrix
 
-| Service | Workspace | Port | Local URL | Description |
-| :--- | :--- | :---: | :--- | :--- |
-| **Admin Frontend** | `admin/frontend` | `5173` | [http://localhost:5173](http://localhost:5173) | Admin Console (Vite, React 19, Joy UI) |
-| **Admin Backend** | `admin/backend` | `3000` | [http://localhost:3000/api/v1](http://localhost:3000/api/v1) | Admin BFF REST API (Express, Kysely) |
-| **Client Frontend** | `client/frontend` | `5174` | [http://localhost:5174](http://localhost:5174) | Client Web Portal (Vite, React 19, Joy UI) |
-| **Client Backend** | `client/backend` | `4000` | [http://localhost:4000/api/v1](http://localhost:4000/api/v1) | Client BFF REST API (Express, Kysely) |
-| **Auth Microservice** | `services/auth-service` | `5000` | [http://localhost:5000/api/v1/auth](http://localhost:5000/api/v1/auth) | Centralized JWT Auth & Token Authority |
-| **PostgreSQL** | `database` | `5432` | `localhost:5432` | PostgreSQL 17 Database (`boilerplate_db`) |
+| Service               | Workspace               |  Port  | Local URL                                                              | Description                                |
+| :-------------------- | :---------------------- | :----: | :--------------------------------------------------------------------- | :----------------------------------------- |
+| **Admin Frontend**    | `admin/frontend`        | `5173` | [http://localhost:5173](http://localhost:5173)                         | Admin Console (Vite, React 19, Joy UI)     |
+| **Admin Backend**     | `admin/backend`         | `3000` | [http://localhost:3000/api/v1](http://localhost:3000/api/v1)           | Admin BFF REST API (Express, Kysely)       |
+| **Client Frontend**   | `client/frontend`       | `5174` | [http://localhost:5174](http://localhost:5174)                         | Client Web Portal (Vite, React 19, Joy UI) |
+| **Client Backend**    | `client/backend`        | `4000` | [http://localhost:4000/api/v1](http://localhost:4000/api/v1)           | Client BFF REST API (Express, Kysely)      |
+| **Auth Microservice** | `services/auth-service` | `5000` | [http://localhost:5000/api/v1/auth](http://localhost:5000/api/v1/auth) | Centralized JWT Auth & Token Authority     |
+| **PostgreSQL**        | `database`              | `5432` | `localhost:5432`                                                       | PostgreSQL 17 Database (`boilerplate_db`)  |
 
 ---
 
@@ -340,14 +348,15 @@ The database seeder provisions four pre-configured persona accounts to verify ac
 
 **Default password for all accounts:** `Password123!`
 
-| Role Persona | Email | Allowed Portal | Access Scope |
-| :--- | :--- | :---: | :--- |
-| 👑 **Super Admin** | `superadmin@example.com` | **Admin Portal** | Master universal bypass. Unrestricted access to all modules, users, roles, and settings. |
-| 🛡️ **Administrator** | `admin@example.com` | **Admin Portal** | User management (`users:*`), settings management, roles view, analytics view. |
-| 💼 **Manager** | `manager@example.com` | **Admin Portal** | Operational lead with read access to users (`users:read`), analytics, and settings. |
-| 👤 **User** | `user@example.com` | **Client Portal** | Standard consumer identity with profile access and personal client settings. |
+| Role Persona         | Email                    |  Allowed Portal   | Access Scope                                                                             |
+| :------------------- | :----------------------- | :---------------: | :--------------------------------------------------------------------------------------- |
+| 👑 **Super Admin**   | `superadmin@example.com` | **Admin Portal**  | Master universal bypass. Unrestricted access to all modules, users, roles, and settings. |
+| 🛡️ **Administrator** | `admin@example.com`      | **Admin Portal**  | User management (`users:*`), settings management, roles view, analytics view.            |
+| 💼 **Manager**       | `manager@example.com`    | **Admin Portal**  | Operational lead with read access to users (`users:read`), analytics, and settings.      |
+| 👤 **User**          | `user@example.com`       | **Client Portal** | Standard consumer identity with profile access and personal client settings.             |
 
 ### Portal Access Segregation:
+
 - **Admin Portal (`http://localhost:5173`)**: Exclusively reserved for administrative personas (`super_admin`, `admin`, `manager`) and custom administrative roles. Regular users attempting to sign into the Admin Portal receive a `403 Forbidden` response.
 - **Client Portal (`http://localhost:5174`)**: Exclusively reserved for end-users (`user` role). Administrative personas attempting to sign into the Client Portal receive a `403 Forbidden` response unless explicitly assigned the `user` role.
 - **Interactive Persona Switcher**: Both frontends include a quick-switch persona dropdown in the user interface to test RBAC roles without manually typing credentials or logging out.
@@ -373,6 +382,7 @@ Phase 3: [admin|client]/frontend/ (Types → API Client → Sidebar → Routes �
 All database schema definitions and permission fixtures reside exclusively in `database/`.
 
 #### 1.1 Create Migration Script
+
 Create `database/migrations/003_create_documents_schema.sql`:
 
 ```sql
@@ -390,6 +400,7 @@ CREATE INDEX IF NOT EXISTS idx_documents_created_by ON documents(created_by);
 ```
 
 #### 1.2 Create Seeder Script
+
 Create `database/seeders/003_seed_documents.sql`:
 
 ```sql
@@ -414,6 +425,7 @@ ON CONFLICT DO NOTHING;
 ```
 
 #### 1.3 Apply Database Changes
+
 ```bash
 npm run db:migrate
 npm run db:seed
@@ -426,10 +438,11 @@ npm run db:seed
 Select the target BFF based on audience (`admin/backend` for administration, `client/backend` for consumers). Follow the **Controller $\rightarrow$ Service $\rightarrow$ Repository** layered architecture:
 
 #### 2.1 Update Database Types
+
 In `[admin|client]/backend/src/types/database.ts`:
 
 ```ts
-import type { Generated } from 'kysely';
+import type { Generated } from "kysely";
 
 export interface DocumentTable {
   id: Generated<string>;
@@ -447,16 +460,25 @@ export interface Database {
 ```
 
 #### 2.2 Repository Layer (`src/repositories/document.repository.ts`)
+
 ```ts
-import { db } from '../config/database.js';
+import { db } from "../config/database.js";
 
 export const findDocuments = async () => {
-  return await db.selectFrom('documents').selectAll().orderBy('created_at', 'desc').execute();
+  return await db
+    .selectFrom("documents")
+    .selectAll()
+    .orderBy("created_at", "desc")
+    .execute();
 };
 
-export const createDocument = async (title: string, content?: string, userId?: string) => {
+export const createDocument = async (
+  title: string,
+  content?: string,
+  userId?: string,
+) => {
   return await db
-    .insertInto('documents')
+    .insertInto("documents")
     .values({ title, content: content ?? null, created_by: userId ?? null })
     .returningAll()
     .executeTakeFirstOrThrow();
@@ -464,31 +486,41 @@ export const createDocument = async (title: string, content?: string, userId?: s
 ```
 
 #### 2.3 Service Layer (`src/services/document.service.ts`)
+
 ```ts
-import * as docRepo from '../repositories/document.repository.js';
+import * as docRepo from "../repositories/document.repository.js";
 
 export const listDocuments = async () => {
   return await docRepo.findDocuments();
 };
 
-export const publishDocument = async (title: string, content?: string, userId?: string) => {
+export const publishDocument = async (
+  title: string,
+  content?: string,
+  userId?: string,
+) => {
   return await docRepo.createDocument(title, content, userId);
 };
 ```
 
 #### 2.4 Controller Layer (`src/controllers/document.controller.ts`)
+
 ```ts
-import type { Response, NextFunction } from 'express';
-import { z } from 'zod';
-import type { AuthenticatedRequest } from '../types/auth.js';
-import * as docService from '../services/document.service.js';
+import type { Response, NextFunction } from "express";
+import { z } from "zod";
+import type { AuthenticatedRequest } from "../types/auth.js";
+import * as docService from "../services/document.service.js";
 
 export const createDocSchema = z.object({
   title: z.string().trim().min(1).max(255),
   content: z.string().trim().optional(),
 });
 
-export const getDocuments = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const getDocuments = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const docs = await docService.listDocuments();
     res.status(200).json({ success: true, data: docs });
@@ -497,11 +529,25 @@ export const getDocuments = async (req: AuthenticatedRequest, res: Response, nex
   }
 };
 
-export const createDocument = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const createDocument = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const body = createDocSchema.parse(req.body);
-    const doc = await docService.publishDocument(body.title, body.content, req.user?.id);
-    res.status(201).json({ success: true, data: doc, message: 'Document created successfully.' });
+    const doc = await docService.publishDocument(
+      body.title,
+      body.content,
+      req.user?.id,
+    );
+    res
+      .status(201)
+      .json({
+        success: true,
+        data: doc,
+        message: "Document created successfully.",
+      });
   } catch (err) {
     next(err);
   }
@@ -509,26 +555,36 @@ export const createDocument = async (req: AuthenticatedRequest, res: Response, n
 ```
 
 #### 2.5 Route Registration (`src/routes/document.routes.ts`)
+
 ```ts
-import { Router } from 'express';
-import * as docController from '../controllers/document.controller.js';
-import { authenticate } from '../middlewares/auth/authentication.middleware.js';
-import { requirePermission } from '../middlewares/auth/authorization.middleware.js';
+import { Router } from "express";
+import * as docController from "../controllers/document.controller.js";
+import { authenticate } from "../middlewares/auth/authentication.middleware.js";
+import { requirePermission } from "../middlewares/auth/authorization.middleware.js";
 
 const router = Router();
 router.use(authenticate);
 
-router.get('/', requirePermission('documents:read'), docController.getDocuments);
-router.post('/', requirePermission('documents:create'), docController.createDocument);
+router.get(
+  "/",
+  requirePermission("documents:read"),
+  docController.getDocuments,
+);
+router.post(
+  "/",
+  requirePermission("documents:create"),
+  docController.createDocument,
+);
 
 export default router;
 ```
 
 Mount inside `src/routes/index.ts`:
+
 ```ts
-import documentRoutes from './document.routes.js';
+import documentRoutes from "./document.routes.js";
 // ...
-router.use('/documents', documentRoutes);
+router.use("/documents", documentRoutes);
 ```
 
 ---
@@ -536,23 +592,28 @@ router.use('/documents', documentRoutes);
 ### Phase 3: Frontend Joy UI Integration (`[admin|client]/frontend/`)
 
 #### 3.1 API Client Layer (`src/services/document.api.ts`)
+
 Never make raw `fetch` calls in React components. Encapsulate all communication in an API service wrapper:
 
 ```ts
 const API_BASE = import.meta.env.VITE_API_URL;
 
 export const getDocumentsApi = async () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   const res = await fetch(`${API_BASE}/documents`, {
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
-  if (!res.ok) throw new Error('Failed to fetch documents.');
+  if (!res.ok) throw new Error("Failed to fetch documents.");
   const json = await res.json();
   return json.data;
 };
 ```
 
 #### 3.2 Sidebar Navigation Link (`src/components/ui/Sidebar.tsx`)
+
 Register the module with permission awareness:
 
 ```tsx
@@ -565,6 +626,7 @@ Register the module with permission awareness:
 ```
 
 #### 3.3 Protected Route (`src/routes/AppRoutes.tsx`)
+
 Mount the page wrapped in `ProtectedRoute`:
 
 ```tsx
@@ -579,25 +641,39 @@ Mount the page wrapped in `ProtectedRoute`:
 ```
 
 #### 3.4 Page View with Local UI Wrappers & Joy UI
+
 Build the UI adhering to the **Component Priority Order**:
+
 1. **Local UI Wrappers** (`@/components/ui/Container`, `@/components/ui/Button`, `@/components/ui/Typography`). **Use `Container` instead of Joy/MUI `Card`**.
 2. **Joy UI (`@mui/joy`)** components for forms, inputs, and layout.
 3. **`PermissionGate`** to guard action buttons.
 
 ```tsx
-import Typography from '@/components/ui/Typography';
-import Button from '@/components/ui/Button';
-import Container from '@/components/ui/Container';
-import PermissionGate from '@/components/auth/PermissionGate';
+import Typography from "@/components/ui/Typography";
+import Button from "@/components/ui/Button";
+import Container from "@/components/ui/Container";
+import PermissionGate from "@/components/auth/PermissionGate";
 
 export default function DocumentsPage() {
   return (
-    <Container elevation={1} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <Container
+      elevation={1}
+      style={{
+        padding: "24px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
       <Typography variant="title" size="md" bold>
         Documents Repository
       </Typography>
-      <PermissionGate permission="documents:create" disableOnly tooltipTitle="Requires documents:create permission">
-        <Button colorScheme="primary" onClick={() => console.log('Create')}>
+      <PermissionGate
+        permission="documents:create"
+        disableOnly
+        tooltipTitle="Requires documents:create permission"
+      >
+        <Button colorScheme="primary" onClick={() => console.log("Create")}>
           New Document
         </Button>
       </PermissionGate>
@@ -633,19 +709,19 @@ export default function DocumentsPage() {
 
 ### Root Scripts
 
-| Command | Action |
-| :--- | :--- |
-| `npm run dev` | Boots all 5 services concurrently (Auth, Admin BFF, Admin FE, Client BFF, Client FE) |
-| `npm run dev:admin` | Runs Admin BFF and Admin Frontend concurrently |
-| `npm run dev:client` | Runs Client BFF and Client Frontend concurrently |
-| `npm run dev:auth` | Runs Centralized Auth Microservice development server |
-| `npm run build` | Compiles all packages for production (`tsc` + `vite build`) |
-| `npm run build:admin` | Compiles Admin BFF and Admin Frontend |
-| `npm run build:client` | Compiles Client BFF and Client Frontend |
-| `npm run build:auth` | Compiles Centralized Auth Microservice |
-| `npm run db:migrate` | Runs all pending SQL migrations in `database/migrations/` |
-| `npm run db:seed` | Runs all SQL seeders in `database/seeders/` |
-| `npm run db:reset` | Drops and re-executes all migrations and seeders |
+| Command                | Action                                                                               |
+| :--------------------- | :----------------------------------------------------------------------------------- |
+| `npm run dev`          | Boots all 5 services concurrently (Auth, Admin BFF, Admin FE, Client BFF, Client FE) |
+| `npm run dev:admin`    | Runs Admin BFF and Admin Frontend concurrently                                       |
+| `npm run dev:client`   | Runs Client BFF and Client Frontend concurrently                                     |
+| `npm run dev:auth`     | Runs Centralized Auth Microservice development server                                |
+| `npm run build`        | Compiles all packages for production (`tsc` + `vite build`)                          |
+| `npm run build:admin`  | Compiles Admin BFF and Admin Frontend                                                |
+| `npm run build:client` | Compiles Client BFF and Client Frontend                                              |
+| `npm run build:auth`   | Compiles Centralized Auth Microservice                                               |
+| `npm run db:migrate`   | Runs all pending SQL migrations in `database/migrations/`                            |
+| `npm run db:seed`      | Runs all SQL seeders in `database/seeders/`                                          |
+| `npm run db:reset`     | Drops and re-executes all migrations and seeders                                     |
 
 ### Individual Workspace Commands
 

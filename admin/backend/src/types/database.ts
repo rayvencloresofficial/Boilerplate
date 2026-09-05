@@ -7,6 +7,7 @@ export interface UserTable {
   first_name: string;
   last_name: string;
   is_active: Generated<boolean>;
+  phone_number: ColumnType<string | null, string | null | undefined, string | null | undefined>;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string>;
 }
@@ -47,6 +48,7 @@ export interface SettingTable {
   category: Generated<string>;
   description: string | null;
   is_public: Generated<boolean>;
+  is_encrypted: Generated<boolean>;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string>;
 }

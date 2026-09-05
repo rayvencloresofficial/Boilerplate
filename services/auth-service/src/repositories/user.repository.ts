@@ -9,6 +9,7 @@ export interface CreateUserData {
   first_name: string;
   last_name: string;
   is_active?: boolean;
+  phone_number?: string | null;
 }
 
 export interface UserSummary {
@@ -17,6 +18,7 @@ export interface UserSummary {
   first_name: string;
   last_name: string;
   is_active: boolean;
+  phone_number?: string | null;
   roles: string[];
 }
 
@@ -28,13 +30,14 @@ export const getUserWithRolesAndPermissions = async (userId: string): Promise<Au
     .leftJoin('role_permissions', 'role_permissions.role_id', 'roles.id')
     .leftJoin('permissions', 'permissions.id', 'role_permissions.permission_id')
     .where('users.id', '=', userId)
-    .groupBy(['users.id', 'users.email', 'users.first_name', 'users.last_name', 'users.is_active'])
+    .groupBy(['users.id', 'users.email', 'users.first_name', 'users.last_name', 'users.is_active', 'users.phone_number'])
     .select([
       'users.id',
       'users.email',
       'users.first_name',
       'users.last_name',
       'users.is_active',
+      'users.phone_number',
       sql<string[]>`COALESCE(array_agg(DISTINCT roles.name) FILTER (WHERE roles.name IS NOT NULL), '{}')`.as('roles'),
       sql<string[]>`COALESCE(array_agg(DISTINCT permissions.slug) FILTER (WHERE permissions.slug IS NOT NULL), '{}')`.as('permissions'),
     ])
@@ -48,6 +51,7 @@ export const getUserWithRolesAndPermissions = async (userId: string): Promise<Au
     first_name: result.first_name,
     last_name: result.last_name,
     is_active: result.is_active,
+    phone_number: result.phone_number,
     roles: result.roles || [],
     permissions: result.permissions || [],
   };
@@ -61,13 +65,14 @@ export const getAllUsersWithRolesAndPermissions = async (): Promise<AuthUser[]> 
     .leftJoin('role_permissions', 'role_permissions.role_id', 'roles.id')
     .leftJoin('permissions', 'permissions.id', 'role_permissions.permission_id')
     .where('users.is_active', '=', true)
-    .groupBy(['users.id', 'users.email', 'users.first_name', 'users.last_name', 'users.is_active', 'users.created_at'])
+    .groupBy(['users.id', 'users.email', 'users.first_name', 'users.last_name', 'users.is_active', 'users.phone_number', 'users.created_at'])
     .select([
       'users.id',
       'users.email',
       'users.first_name',
       'users.last_name',
       'users.is_active',
+      'users.phone_number',
       sql<string[]>`COALESCE(array_agg(DISTINCT roles.name) FILTER (WHERE roles.name IS NOT NULL), '{}')`.as('roles'),
       sql<string[]>`COALESCE(array_agg(DISTINCT permissions.slug) FILTER (WHERE permissions.slug IS NOT NULL), '{}')`.as('permissions'),
     ])
@@ -80,6 +85,7 @@ export const getAllUsersWithRolesAndPermissions = async (): Promise<AuthUser[]> 
     first_name: r.first_name,
     last_name: r.last_name,
     is_active: r.is_active,
+    phone_number: r.phone_number,
     roles: r.roles || [],
     permissions: r.permissions || [],
   }));
@@ -115,8 +121,9 @@ export const create = async (
         first_name: userData.first_name.trim(),
         last_name: userData.last_name.trim(),
         is_active: userData.is_active ?? true,
+        phone_number: userData.phone_number ?? null,
       })
-      .returning(['id', 'email', 'first_name', 'last_name', 'is_active'])
+      .returning(['id', 'email', 'first_name', 'last_name', 'is_active', 'phone_number'])
       .executeTakeFirstOrThrow();
 
     if (roleIds.length > 0) {

@@ -5,6 +5,7 @@ import roleRoutes from './role.routes.js';
 import permissionRoutes from './permission.routes.js';
 import rbacTestRoutes from './rbacTest.routes.js';
 import settingsRoutes from './settings.routes.js';
+import cryptoRoutes from './crypto.routes.js';
 import { db } from '../config/database.js';
 import { sql } from 'kysely';
 
@@ -24,6 +25,7 @@ router.get('/', (_req, res) => {
       permissions: '/api/v1/permissions',
       testRbac: '/api/v1/test-rbac',
       settings: '/api/v1/settings',
+      crypto: '/api/v1/crypto',
     },
     timestamp: new Date().toISOString(),
   });
@@ -55,5 +57,6 @@ router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);
 router.use('/test-rbac', rbacTestRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/crypto', cryptoRoutes);
 
 export default router;

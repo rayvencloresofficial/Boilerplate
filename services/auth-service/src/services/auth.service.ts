@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { ENV } from '../config/env.js';
+import { encrypt, decrypt } from '../utils/crypto.util.js';
 import { UnauthorizedError, ForbiddenError, ConflictError, NotFoundError } from '../errors/AppError.js';
 import * as userRepository from '../repositories/user.repository.js';
 import * as roleRepository from '../repositories/role.repository.js';
@@ -18,6 +19,11 @@ import type {
 const SALT_ROUNDS = 10;
 const ADMIN_ROLES = ['super_admin', 'admin', 'manager'];
 const REGULAR_USER_ROLE = 'user';
+
+const sanitizeUser = (user: AuthUser): AuthUser => ({
+  ...user,
+  phone_number: user.phone_number ? decrypt(user.phone_number) : null,
+});
 
 export const hashPassword = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, SALT_ROUNDS);
@@ -120,8 +126,9 @@ export const login = async (
 
   validatePortalAccess(fullUser.roles, portal);
 
-  const tokens = await generateTokenPair(fullUser, portal);
-  return { user: fullUser, tokens };
+  const sanitized = sanitizeUser(fullUser);
+  const tokens = await generateTokenPair(sanitized, portal);
+  return { user: sanitized, tokens };
 };
 
 export const register = async (userData: {
@@ -129,6 +136,7 @@ export const register = async (userData: {
   password: string;
   first_name: string;
   last_name: string;
+  phone_number?: string;
 }): Promise<{ user: AuthUser; tokens: TokenPair }> => {
   const existing = await userRepository.findByEmail(userData.email);
   if (existing) {
@@ -140,6 +148,7 @@ export const register = async (userData: {
   const roleIds = defaultRole ? [defaultRole.id] : [];
 
   const passwordHash = await hashPassword(userData.password);
+  const encryptedPhone = userData.phone_number ? encrypt(userData.phone_number) : null;
 
   const createdUser = await userRepository.create(
     {
@@ -148,6 +157,7 @@ export const register = async (userData: {
       first_name: userData.first_name,
       last_name: userData.last_name,
       is_active: true,
+      phone_number: encryptedPhone,
     },
     roleIds
   );
@@ -157,8 +167,9 @@ export const register = async (userData: {
     throw new NotFoundError('User created but failed to hydrate.');
   }
 
-  const tokens = await generateTokenPair(fullUser, 'client');
-  return { user: fullUser, tokens };
+  const sanitized = sanitizeUser(fullUser);
+  const tokens = await generateTokenPair(sanitized, 'client');
+  return { user: sanitized, tokens };
 };
 
 export const refresh = async (refreshTokenStr: string): Promise<TokenPair> => {
@@ -220,7 +231,7 @@ export const verifyToken = async (token: string, requiredPortal?: PortalType): P
     validatePortalAccess(user.roles, requiredPortal);
   }
 
-  return user;
+  return sanitizeUser(user);
 };
 
 const getRoleColor = (role?: string): string => {
@@ -277,6 +288,7 @@ export const getDemoAccounts = async (portal?: PortalType): Promise<DemoAccountI
     first_name: u.first_name,
     last_name: u.last_name,
     is_active: u.is_active,
+    phone_number: u.phone_number ? decrypt(u.phone_number) : null,
     roles: u.roles,
     permissions: u.permissions,
     title: getRoleTitle(u.roles, u.first_name, u.last_name),
@@ -328,6 +340,7 @@ export const demoLogin = async (
 
   validatePortalAccess(fullUser.roles, portal);
 
-  const tokens = await generateTokenPair(fullUser, portal);
-  return { user: fullUser, tokens };
+  const sanitized = sanitizeUser(fullUser);
+  const tokens = await generateTokenPair(sanitized, portal);
+  return { user: sanitized, tokens };
 };

@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { ConflictError, NotFoundError } from '../errors/AppError.js';
+import { encrypt, decrypt } from '../utils/crypto.util.js';
 import * as userRepository from '../repositories/user.repository.js';
 import type { UserSummary } from '../repositories/user.repository.js';
 
@@ -7,8 +8,14 @@ const hashPassword = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, 10);
 };
 
+const sanitizeUserSummary = (user: UserSummary): UserSummary => ({
+  ...user,
+  phone_number: user.phone_number ? decrypt(user.phone_number) : null,
+});
+
 export const listUsers = async (limit = 50, offset = 0): Promise<UserSummary[]> => {
-  return await userRepository.findAll(limit, offset);
+  const users = await userRepository.findAll(limit, offset);
+  return users.map(sanitizeUserSummary);
 };
 
 export const getUserById = async (id: string): Promise<UserSummary> => {
@@ -16,16 +23,17 @@ export const getUserById = async (id: string): Promise<UserSummary> => {
   if (!user) {
     throw new NotFoundError('User', id);
   }
-  return {
+  return sanitizeUserSummary({
     id: user.id,
     email: user.email,
     first_name: user.first_name,
     last_name: user.last_name,
     is_active: user.is_active,
+    phone_number: user.phone_number,
     roles: user.roles,
     created_at: new Date(),
     updated_at: new Date(),
-  };
+  });
 };
 
 export const createUser = async (
@@ -35,6 +43,7 @@ export const createUser = async (
     first_name: string;
     last_name: string;
     is_active?: boolean;
+    phone_number?: string | null;
   },
   roleIds: string[] = []
 ): Promise<UserSummary> => {
@@ -44,17 +53,21 @@ export const createUser = async (
   }
 
   const passwordHash = await hashPassword(userData.password);
+  const encryptedPhone = userData.phone_number ? encrypt(userData.phone_number) : null;
 
-  return await userRepository.create(
+  const created = await userRepository.create(
     {
       email: userData.email,
       password_hash: passwordHash,
       first_name: userData.first_name,
       last_name: userData.last_name,
       is_active: userData.is_active ?? true,
+      phone_number: encryptedPhone,
     },
     roleIds
   );
+
+  return sanitizeUserSummary(created);
 };
 
 export const updateUser = async (
@@ -65,6 +78,7 @@ export const updateUser = async (
     first_name?: string;
     last_name?: string;
     is_active?: boolean;
+    phone_number?: string | null;
   },
   roleIds?: string[]
 ): Promise<UserSummary> => {
@@ -91,12 +105,16 @@ export const updateUser = async (
     updateData.password_hash = await hashPassword(userData.password);
   }
 
+  if (userData.phone_number !== undefined) {
+    updateData.phone_number = userData.phone_number ? encrypt(userData.phone_number) : null;
+  }
+
   const updated = await userRepository.update(id, updateData, roleIds);
   if (!updated) {
     throw new NotFoundError('User', id);
   }
 
-  return updated;
+  return sanitizeUserSummary(updated);
 };
 
 export const deleteUser = async (id: string): Promise<void> => {

@@ -8,6 +8,7 @@ export interface SettingRecord {
   category: string;
   description: string | null;
   is_public: boolean;
+  is_encrypted: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -18,6 +19,7 @@ export interface CreateSettingData {
   category?: string;
   description?: string | null;
   is_public?: boolean;
+  is_encrypted?: boolean;
 }
 
 export interface UpdateSettingData {
@@ -25,15 +27,17 @@ export interface UpdateSettingData {
   category?: string;
   description?: string | null;
   is_public?: boolean;
+  is_encrypted?: boolean;
 }
 
 export interface SettingsFilter {
   category?: string;
   is_public?: boolean;
+  is_encrypted?: boolean;
 }
 
 /**
- * Lists all settings with optional filtering by category and public visibility.
+ * Lists all settings with optional filtering by category, public visibility, and encryption.
  */
 export const findAll = async (filter?: SettingsFilter): Promise<SettingRecord[]> => {
   let query = db.selectFrom('settings').selectAll();
@@ -44,6 +48,10 @@ export const findAll = async (filter?: SettingsFilter): Promise<SettingRecord[]>
 
   if (filter?.is_public !== undefined) {
     query = query.where('is_public', '=', filter.is_public);
+  }
+
+  if (filter?.is_encrypted !== undefined) {
+    query = query.where('is_encrypted', '=', filter.is_encrypted);
   }
 
   const rows = await query
@@ -68,7 +76,7 @@ export const findByKey = async (key: string): Promise<SettingRecord | null> => {
 };
 
 /**
- * Creates a new setting with JSONB value.
+ * Creates a new setting with JSONB value and encryption flag.
  */
 export const create = async (data: CreateSettingData): Promise<SettingRecord> => {
   const jsonString = JSON.stringify(data.value);
@@ -81,6 +89,7 @@ export const create = async (data: CreateSettingData): Promise<SettingRecord> =>
       category: data.category?.trim().toLowerCase() || 'general',
       description: data.description ?? null,
       is_public: data.is_public ?? false,
+      is_encrypted: data.is_encrypted ?? false,
     })
     .returningAll()
     .executeTakeFirstOrThrow();
@@ -108,6 +117,9 @@ export const update = async (key: string, data: UpdateSettingData): Promise<Sett
   }
   if (data.is_public !== undefined) {
     updateValues['is_public'] = data.is_public;
+  }
+  if (data.is_encrypted !== undefined) {
+    updateValues['is_encrypted'] = data.is_encrypted;
   }
 
   const row = await db

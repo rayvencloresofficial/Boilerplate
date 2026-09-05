@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { ensureDatabaseExists, createPool, getDatabaseUrl } from './client.js';
+import { encrypt } from './utils/crypto.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +48,12 @@ export async function runSeeds(): Promise<void> {
 
     for (const file of files) {
       const filePath = path.join(seedersDir, file);
-      const sql = fs.readFileSync(filePath, 'utf8');
+      let sql = fs.readFileSync(filePath, 'utf8');
+
+      // Expand {{ENCRYPT:plaintext}} template placeholders dynamically at seed time
+      sql = sql.replace(/\{\{ENCRYPT:([^}]+)\}\}/g, (_match, rawValue) => {
+        return encrypt(rawValue);
+      });
 
       const startTime = Date.now();
       process.stdout.write(`  ⏳ Seeding ${file}... `);

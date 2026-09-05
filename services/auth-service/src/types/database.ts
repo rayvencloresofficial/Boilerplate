@@ -7,6 +7,7 @@ export interface UserTable {
   first_name: string;
   last_name: string;
   is_active: Generated<boolean>;
+  phone_number: ColumnType<string | null, string | null | undefined, string | null | undefined>;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string>;
 }
